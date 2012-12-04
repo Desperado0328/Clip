@@ -13,31 +13,25 @@ p,text-area {
 
 h1 {
 	width: 0;
-	margin: 0 auto; /* TODO Too far right for unknown reason */
+	margin: 1em auto; /* TODO Too far right; unknown reason */
 	font-size: 2.25em;
+	color: #222;
 }
 
-.pong-window {
+.game-window {
 	margin: 1em auto;
 	padding: 1em;
-	width: 80%;
-	height: 500px;
-	background-color: black;
+	background-color: #222;
 }
 
 .paddle, .ball {
-	background-color: white;
+	background-color: #ddd;
 }
 
 .paddle {
-	width: 1em;
-	height: 10em;
 }
 
 .ball {
-	width: 3em;
-	height: 3em;
-	border-radius: 3em;
 }
 
 .float-left {
