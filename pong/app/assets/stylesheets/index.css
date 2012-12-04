@@ -1,0 +1,49 @@
+.notice {
+	margin: 1em;
+	padding: 0.5em;
+	background-color: green;
+	color: white;
+	font-family: "Helvetica", "Arial", sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6,
+p,text-area {
+	font-family: "Helvetica", "Arial", sans-serif;
+}
+
+h1 {
+	width: 0;
+	margin: 0 auto; /* TODO Too far right for unknown reason */
+	font-size: 2.25em;
+}
+
+.pong-window {
+	margin: 1em auto;
+	padding: 1em;
+	width: 80%;
+	height: 500px;
+	background-color: black;
+}
+
+.paddle, .ball {
+	background-color: white;
+}
+
+.paddle {
+	width: 1em;
+	height: 10em;
+}
+
+.ball {
+	width: 3em;
+	height: 3em;
+	border-radius: 3em;
+}
+
+.float-left {
+	float: left;
+}
+
+.float-right {
+	float: right;
+}
