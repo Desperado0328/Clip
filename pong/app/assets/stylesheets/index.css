@@ -6,8 +6,7 @@
 	font-family: "Helvetica", "Arial", sans-serif;
 }
 
-h1,h2,h3,h4,h5,h6,
-p,text-area {
+body {
 	font-family: "Helvetica", "Arial", sans-serif;
 }
 
@@ -19,25 +18,28 @@ h1 {
 }
 
 .game-window {
+	position: relative; /* absolute children need relative parent */
 	margin: 1em auto;
 	padding: 1em;
 	background-color: #222;
 }
 
 .paddle, .ball {
+	position: absolute;
 	background-color: #ddd;
 }
 
 .paddle {
+	background-color: orange;
 }
 
 .ball {
 }
 
-.float-left {
-	float: left;
+.left {
+	background-color: orange; /* DEBUG */
 }
 
-.float-right {
-	float: right;
+.right {
+	background-color: orange; /* DEBUG */
 }
