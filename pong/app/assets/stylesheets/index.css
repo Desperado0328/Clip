@@ -11,9 +11,9 @@ body {
 }
 
 h1 {
-	width: 0;
-	margin: 1em auto; /* TODO Too far right; unknown reason */
+	margin: 0.5em auto 0 auto;
 	font-size: 2.25em;
+	text-align: center;
 	color: #222;
 }
 

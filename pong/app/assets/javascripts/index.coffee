@@ -1,36 +1,44 @@
 # Pong
 # (0, 0) coordinates located in upper-left corner of game window, (100, 100) in lower-right
 
-# Avoid polluting the namespace by using a self-executing anonymous function
-(->
+;(-> # TODO Is this unnecessary in CoffeeScript?
 	$(() ->
 		initialize()
 	)
 	
-	em = 'em'
-	percent = '%'
+	# Constants
+	EM = 'em' # CSS
+	PERCENT = '%' # CSS
+	PX = 'px'
+	UP = 38 # keyCode
+	DOWN = 40 # keyCode
+	LARGE_NUMBER = 1000000
+	TIME_STEP = 20 # milliseconds
 	
 	initialize = ->
 		game = {}
 		game.config = config()
 		game.state = state()
-		game.$window = $ '.game-window'
+		game.$gameWindow = $ '.game-window'
+		game.$document = $ document
 		game.$leftPaddle = $ '.paddle.left'
 		game.$rightPaddle = $ '.paddle.right'
 		game.$ball = $ '.ball'
 		updateCss(game)
 		updateState(game)
+		attachHandlers(game)
 		play(game)
 	
-	# TODO Have a converter between world coordinates and screen coordinates
+	# TODO Use a converter between world coordinates and screen coordinates
 	config = ->
 		# return:
 		windowWidth: 80 # %
-		windowHeight: 25 # em
-		paddleWidth: 1 # em
-		paddleHeight: 7 # em
-		paddleGap: 10 # percent
-		ballRadius: 1.25 # em
+		windowHeight: 22 # em
+		paddleWidth: 3 # %
+		paddleHeight: 20 # %
+		paddleXGap: 10 # %
+		initPaddleVelocity: 5 # % per keypress
+		ballRadius: 3 # % and em
 		leftScore: 0 # points
 		rightScore: 0 # points
 	
@@ -38,42 +46,93 @@
 		# return:
 		leftPaddle:
 			yPos: 0 # %
+			yVelocity: 0 # % per time step
 		ball:
 			yPos: 0 # %
 			xPos: 0 # %
-			velocity: 25 / 1000.0 # % per millisecond
+			xVelocity: .04 * TIME_STEP # % per time step
+			yVelocity: .12 * TIME_STEP # % per time step
 		rightPaddle:
 			yPos: 0 # %
+			yVelocity: 0 * TIME_STEP # % per time step
 	
 	updateCss = (game) ->
-		game.$window.css 'width', game.config.windowWidth + percent
-		game.$window.css 'height', game.config.windowHeight + em
+		game.$gameWindow.css 'width', game.config.windowWidth + PERCENT
+		game.$gameWindow.css 'height', game.config.windowHeight + EM
 		
-		game.$leftPaddle.css 'width', game.config.paddleWidth + em
-		game.$leftPaddle.css 'height', game.config.paddleHeight + em
-		game.$leftPaddle.css 'left', game.config.paddleGap + percent
+		game.$leftPaddle.css 'width', game.config.paddleWidth + PERCENT
+		game.$leftPaddle.css 'height', game.config.paddleHeight + PERCENT
+		game.$leftPaddle.css 'left', game.config.paddleXGap + PERCENT
 		
-		game.$rightPaddle.css 'width', game.config.paddleWidth + em
-		game.$rightPaddle.css 'height', game.config.paddleHeight + em
-		game.$rightPaddle.css 'right', game.config.paddleGap + percent
+		game.$rightPaddle.css 'width', game.config.paddleWidth + PERCENT
+		game.$rightPaddle.css 'height', game.config.paddleHeight + PERCENT
+		game.$rightPaddle.css 'right', game.config.paddleXGap + PERCENT
 		
-		game.$ball.css 'border-radius', game.config.ballRadius + em
-		game.$ball.css 'width', (2 * game.config.ballRadius) + em
-		game.$ball.css 'height', (2 * game.config.ballRadius) + em
+		resizeBall(game, gameWindowAspectRatio(game))
+	
+	gameWindowAspectRatio = (game) ->
+		game.$gameWindow.width() / (game.$gameWindow.height())
+	
+	resizeBall = (game, aspectRatio) ->
+		game.$ball.css 'width', (2 * game.config.ballRadius) + PERCENT # Dependent on game window width (via %)
+		game.$ball.css 'height', (2 * game.config.ballRadius * aspectRatio) + PERCENT # Keep ball aspect ratio 1:1 (independent of game window aspect ratio)
+		# game.$ball.css 'border-radius', (game.$ball.width() / 2) + PX # Calculate epirically because % cannot be used on border-radius
 	
 	updateState = (game) ->
-		game.$leftPaddle.css 'top', game.state.leftPaddle.yPos + percent
-		game.$rightPaddle.css 'top', game.state.rightPaddle.yPos + percent
-		game.$ball.css 'left', game.state.ball.xPos + percent
-		game.$ball.css 'top', game.state.ball.yPos + percent
+		game.$leftPaddle.css 'top', game.state.leftPaddle.yPos + PERCENT
+		game.$rightPaddle.css 'top', game.state.rightPaddle.yPos + PERCENT
+		game.$ball.css 'left', game.state.ball.xPos + PERCENT
+		game.$ball.css 'top', game.state.ball.yPos + PERCENT
+	
+	attachHandlers = (game) ->
+		# Modified from: http://stackoverflow.com/a/6011119/770170
+		game.$document.keydown((e)->
+			switch e.which
+				when DOWN
+					game.state.rightPaddle.yPos += game.config.initPaddleVelocity
+				when UP
+					game.state.rightPaddle.yPos -= game.config.initPaddleVelocity
+			game.state.rightPaddle.yPos = 0 if game.state.rightPaddle.yPos < 0
+			game.state.rightPaddle.yPos = 100 - game.config.paddleHeight if game.state.rightPaddle.yPos > 100 - game.config.paddleHeight
+			updateState(game)
+		)
+		
+		$(window).resize(->
+			resizeBall game, gameWindowAspectRatio(game)
+		)
+	
+	worldToScreen = (world) ->
+		console.log 'world: ' + world
+		
+	screenToWorld = (screen) ->
+		console.log 'screen: ' + screen
 	
 	play = (game) ->
 		console.log "playing"
+		window.setInterval(->
+			stepBall(game);
+		, TIME_STEP)
+	
+	stepBall = (game) ->
+		game.state.ball.xPos += game.state.ball.xVelocity
+		game.state.ball.yPos += game.state.ball.yVelocity
 		
-	worldToScreen = (world) ->
-		console.log "world: " + world
+		# If the ball is beyond the bounds of the game window, pull it back in and negate
+		# the velocity to simulate a bounce
+		diameter = 2 * game.config.ballRadius
+		if game.state.ball.xPos < 0
+			game.state.ball.xPos = 0
+			game.state.ball.xVelocity *= -1
+		if game.state.ball.xPos > 100 - diameter
+			game.state.ball.xPos = 100 - diameter
+			game.state.ball.xVelocity *= -1
+		if game.state.ball.yPos < 0
+			game.state.ball.yPos = 0
+			game.state.ball.yVelocity *= -1
+		if game.state.ball.yPos > 100 - diameter
+			game.state.ball.yPos = 100 - diameter
+			game.state.ball.yVelocity *= -1
 		
-	screenToWorld = (screen) ->
-		console.log "screen: " + screen
+		updateState(game)
 )()
 
