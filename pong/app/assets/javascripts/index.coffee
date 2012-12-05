@@ -150,9 +150,7 @@
 			game.state.ball.yVelocity *= -1
 		if game.state.ball.yPos > 100 - diameter
 			game.state.ball.yPos = 100 - diameter
-			game.state.ball.yVelocity *= -1
-		
-		console.log game.state.ball.xPos, game.state.ball.yPos
+			game.state.ball.yVelocity *= -1		
 		
 		updateState(game)
 )()
