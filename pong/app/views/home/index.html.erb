@@ -2,10 +2,12 @@
 <p class="notice"><%= notice %></p>
 <% end %>
 
-<h1>Pong</h1>
+<h1 class="text-center">Pong</h1>
 
 <div class="game-window">
 	<div class="paddle left"></div>
-	<div class="ball"></div>
 	<div class="paddle right"></div>
+	<div class="ball"></div> <!-- Higher z-index for ball than paddles -->
 </div>
+
+<p class="text-center">Arrow keys to move, 'p' to pause</p>

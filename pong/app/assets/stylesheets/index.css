@@ -13,7 +13,6 @@ body {
 h1 {
 	margin: 0.5em auto 0 auto;
 	font-size: 2.25em;
-	text-align: center;
 	color: #222;
 }
 
@@ -42,4 +41,8 @@ h1 {
 
 .right {
 	background-color: orange; /* DEBUG */
+}
+
+.text-center {
+	text-align: center;
 }
