@@ -186,6 +186,7 @@
 			game.state.ball.yPos = 100 - game.config.ballHeight
 			game.state.ball.yVelocity *= -1
 	
+	# TODO DRY
 	bounceOffPaddles = ->
 		whereBallHitRightPaddle = getWhereBallHitRightPaddle()
 		if whereBallHitRightPaddle
