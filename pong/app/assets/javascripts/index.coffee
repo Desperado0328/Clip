@@ -13,10 +13,12 @@
 	EM = 'em' # CSS
 	PERCENT = '%' # CSS
 	PX = 'px'
-	keyCodes =
+	keyCodes = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
 		'UP': 38
-		'P': 80
 		'DOWN': 40
+		'P': 80
+		'A': 65
+		'Z': 90
 	LARGE_NUMBER = 1000000
 	TIME_STEP = 20 # milliseconds
 	
@@ -120,6 +122,10 @@
 					game.state.rightPaddle.yPos += game.config.initPaddleVelocity unless game.state.paused
 				when keyCodes['UP']
 					game.state.rightPaddle.yPos -= game.config.initPaddleVelocity unless game.state.paused
+				when keyCodes['Z']
+					game.state.leftPaddle.yPos += game.config.initPaddleVelocity unless game.state.paused
+				when keyCodes['A']
+					game.state.leftPaddle.yPos -= game.config.initPaddleVelocity unless game.state.paused
 				when keyCodes['P']
 					if !game.state.paused
 						game.state.paused = true
@@ -181,13 +187,19 @@
 			game.state.ball.yVelocity *= -1
 	
 	bounceOffPaddles = ->
-		whereBallHitPaddle = getWhereBallHitPaddle()
-		if whereBallHitPaddle
+		whereBallHitRightPaddle = getWhereBallHitRightPaddle()
+		if whereBallHitRightPaddle
 			game.state.ball.xPos = 100 - game.config.paddleXGap - game.config.paddleWidth - game.config.ballWidth
 			game.state.ball.xVelocity *= -1
-			game.state.ball.yVelocity = game.config.baselineBallVelocity * whereBallHitPaddle
+			game.state.ball.yVelocity = game.config.baselineBallVelocity * whereBallHitRightPaddle
+		
+		whereBallHitLeftPaddle = getWhereBallHitLeftPaddle()
+		if whereBallHitLeftPaddle
+			game.state.ball.xPos = game.config.paddleXGap + game.config.paddleWidth
+			game.state.ball.xVelocity *= -1
+			game.state.ball.yVelocity = game.config.baselineBallVelocity * whereBallHitLeftPaddle
 	
-	getWhereBallHitPaddle = ->
+	getWhereBallHitRightPaddle = ->
 		paddleTopYPos = game.state.rightPaddle.yPos - game.config.ballHeight
 		paddleBottomYPos = game.state.rightPaddle.yPos + game.config.paddleHeight
 		return null unless game.state.ball.xVelocity > 0
@@ -198,6 +210,20 @@
 		paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
 		fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
 		
-		# Move the zero-point of 0.0...0.5...1.0 to -1.0...0.0...1.0
+		# Move the zero-point and size of 0.0...0.5...1.0 to -1.0...0.0...1.0
+		return (fractionAlongPaddle - 0.5) * 2
+	
+	getWhereBallHitLeftPaddle = ->
+		paddleTopYPos = game.state.leftPaddle.yPos - game.config.ballHeight
+		paddleBottomYPos = game.state.leftPaddle.yPos + game.config.paddleHeight
+		return null unless game.state.ball.xVelocity < 0
+		return null unless game.state.ball.xPos < (game.config.paddleXGap + game.config.paddleWidth)
+		return null unless paddleTopYPos < game.state.ball.yPos < paddleBottomYPos
+		
+		distanceFromTop = game.state.ball.yPos - paddleTopYPos
+		paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
+		fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
+		
+		# Move the zero-point and size of 0.0...0.5...1.0 to -1.0...0.0...1.0
 		return (fractionAlongPaddle - 0.5) * 2
 )()
