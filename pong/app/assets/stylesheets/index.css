@@ -19,7 +19,6 @@ h1 {
 .game-window {
 	position: relative; /* absolute children need relative parent */
 	margin: 1em auto;
-	padding: 1em;
 	background-color: #222;
 }
 

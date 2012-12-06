@@ -1,46 +1,59 @@
 # Pong
 # (0, 0) coordinates located in upper-left corner of game window, (100, 100) in lower-right
 
+# TODO Make this object-oriented with game as an instance variable
+
 ;(-> # TODO Is this unnecessary in CoffeeScript?
-	$(() ->
-		initialize()
-	)
+	$(-> initialize())
 	
 	# Constants
 	EM = 'em' # CSS
 	PERCENT = '%' # CSS
 	PX = 'px'
-	UP = 38 # keyCode
-	P = 80 # keyCode
-	DOWN = 40 # keyCode
+	keyCodes =
+		'UP': 38
+		'P': 80
+		'DOWN': 40
 	LARGE_NUMBER = 1000000
 	TIME_STEP = 20 # milliseconds
 	
 	initialize = ->
-		game = {}
-		game.config = config()
-		game.state = state()
-		game.$gameWindow = $ '.game-window'
-		game.$window = $ window
-		game.$document = $ document
-		game.$leftPaddle = $ '.paddle.left'
-		game.$rightPaddle = $ '.paddle.right'
-		game.$ball = $ '.ball'
+		game = initializeGame()
 		updateCss(game)
 		updateState(game)
 		attachHandlers(game)
 		play(game)
 	
+	initializeGame = ->
+		retval = {}
+		retval.config = config()
+		retval.state = state()
+		retval.$gameWindow = $ '.game-window'
+		retval.$window = $ window
+		retval.$document = $ document
+		retval.$leftPaddle = $ '.paddle.left'
+		retval.$rightPaddle = $ '.paddle.right'
+		retval.$ball = $ '.ball'
+		retval
+	
 	# TODO Use a converter between world coordinates and screen coordinates
 	config = ->
+		aspectRatio = 3 / 2
+		ballWidth = 4 # % (and em for border-radius)
+		
+		# The ball aspect ratio is the inverse of the game window aspect ratio, canceling
+		# it out and resulting in a 1:1 aspect ratio (a square ball).
+		ballHeight = ballWidth * aspectRatio # %
+		
 		# return:
 		longestSide: .8 # % / 100
-		aspectRatio: 3 / 2 # width / height
+		aspectRatio: aspectRatio # width / height
 		paddleWidth: 3 # %
 		paddleHeight: 20 # %
 		paddleXGap: 10 # %
 		initPaddleVelocity: 5 # % per keypress
-		ballRadius: 3 # % (and em for border-radius)
+		ballWidth: ballWidth
+		ballHeight: ballHeight
 		leftScore: 0 # points
 		rightScore: 0 # points
 	
@@ -87,8 +100,8 @@
 		resizeBall(game)
 	
 	resizeBall = (game) ->
-		game.$ball.css 'width', (2 * game.config.ballRadius) + PERCENT # Dependent on game window width (via %)
-		game.$ball.css 'height', (2 * game.config.ballRadius * game.config.aspectRatio) + PERCENT # Keep ball aspect ratio 1:1 (independent of game window aspect ratio)
+		game.$ball.css 'width', game.config.ballWidth + PERCENT
+		game.$ball.css 'height', game.config.ballHeight + PERCENT
 		# #inefficient game.$ball.css 'border-radius', (game.$ball.width() / 2) + PX # Calculate epirically because % cannot be used on border-radius
 	
 	updateState = (game) ->
@@ -101,11 +114,11 @@
 		# Modified from: http://stackoverflow.com/a/6011119/770170
 		game.$document.keydown((e)->
 			switch e.which
-				when DOWN
-					game.state.rightPaddle.yPos += game.config.initPaddleVelocity
-				when UP
-					game.state.rightPaddle.yPos -= game.config.initPaddleVelocity
-				when P
+				when keyCodes['DOWN']
+					game.state.rightPaddle.yPos += game.config.initPaddleVelocity unless game.state.paused
+				when keyCodes['UP']
+					game.state.rightPaddle.yPos -= game.config.initPaddleVelocity unless game.state.paused
+				when keyCodes['P']
 					if !game.state.paused
 						game.state.paused = true
 						clearInterval(game.state.intervalId)
@@ -138,19 +151,18 @@
 		
 		# If the ball is beyond the bounds of the game window, pull it back in and negate
 		# the velocity to simulate a bounce
-		diameter = 2 * game.config.ballRadius
 		if game.state.ball.xPos < 0
 			game.state.ball.xPos = 0
 			game.state.ball.xVelocity *= -1
-		if game.state.ball.xPos > 100 - diameter
-			game.state.ball.xPos = 100 - diameter
+		if game.state.ball.xPos > 100 - game.config.ballWidth
+			game.state.ball.xPos = 100 - game.config.ballWidth
 			game.state.ball.xVelocity *= -1
 		if game.state.ball.yPos < 0
 			game.state.ball.yPos = 0
 			game.state.ball.yVelocity *= -1
-		if game.state.ball.yPos > 100 - diameter
-			game.state.ball.yPos = 100 - diameter
-			game.state.ball.yVelocity *= -1		
+		if game.state.ball.yPos > 100 - game.config.ballHeight
+			game.state.ball.yPos = 100 - game.config.ballHeight
+			game.state.ball.yVelocity *= -1
 		
 		updateState(game)
 )()
