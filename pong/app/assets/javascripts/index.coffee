@@ -15,8 +15,8 @@
 				Z: 90
 			@TIME_STEP = 20 # milliseconds
 			
-			# Instance variables
 			@game = {}
+			# Instance variables
 			
 			@init()
 		
@@ -137,7 +137,7 @@
 				@updateState()
 			)
 			
-			$(window).resize(->
+			$(window).resize(=>
 				@resizeGameWindow @windowAspectRatio()
 			)
 		
