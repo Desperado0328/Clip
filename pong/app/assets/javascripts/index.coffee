@@ -2,6 +2,8 @@
 # (0, 0) coordinates located in upper-left corner of game window, (100, 100) in lower-right
 
 ;(-> # TODO Is this unnecessary in CoffeeScript?
+	$ -> new Pong new LeftPaddle('.paddle.left'), new RightPaddle('.paddle.right'), new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
+	
 	# TODO Don't make these global
 	GAME_WINDOW_ASPECT_RATIO = 3 / 2 # width / height
 	PERCENT = '%' # CSS
@@ -12,8 +14,6 @@
 		P: 80
 		A: 65
 		Z: 90
-	
-	$ -> new Pong new Paddle('.paddle.left'), new Paddle('.paddle.right'), new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
 	
 	class Pong
 		constructor: (@leftPaddle, @rightPaddle, @ball) ->
@@ -141,13 +141,23 @@
 				@state.yPos = 100 - @config.height
 				@state.yVelocity *= -1
 	
+	class LeftPaddle extends Paddle
+		constructor: (locator) ->
+			super locator
+			@isRight = false
+	
+	class RightPaddle extends Paddle
+		constructor: (locator) ->
+			super locator
+			@isRight = true
+	
 	class Ball extends Animatable
 		constructor: (locator, gameWindowAspectRatio) ->
 			super()
 			
 			@$self = $ locator
 			
-			width = 4 # % (and em for border-radius)			
+			width = 4 # % (and em for border-radius)	
 			# The ball aspect ratio is the inverse of the game window aspect ratio, canceling
 			# it out and resulting in a 1:1 aspect ratio (a square ball).
 			height = width * gameWindowAspectRatio # %
@@ -170,11 +180,12 @@
 			@state.xPos += @state.xVelocity
 			@state.yPos += @state.yVelocity
 			@bounceOffEdges()
-			@bounceOffPaddles leftPaddle, rightPaddle
+			@bounceOffOf leftPaddle
+			@bounceOffOf rightPaddle
 		
 		bounceOffEdges: ->
 			# If the ball is beyond the bounds of the game window, pull it back in and negate
-			# the velocity to simulate a bounce
+			# the velocity to simulate a bounce.
 			if @state.xPos < 0
 				@state.xPos = 0
 				@state.xVelocity *= -1
@@ -188,40 +199,33 @@
 				@state.yPos = 100 - @config.height
 				@state.yVelocity *= -1
 		
-		# TODO DRY
-		bounceOffPaddles: (leftPaddle, rightPaddle) ->
-			whereBallHitRightPaddle = @getWhereBallHitRightPaddle rightPaddle
-			if whereBallHitRightPaddle
-				@state.xPos = 100 - rightPaddle.config.xGap - rightPaddle.config.width - @config.width
+		bounceOffOf: (paddle) ->
+			# If the ball is beyond the bounds of the game window, pull it back in and negate
+			# the velocity to simulate a bounce.
+			
+			if paddle.isRight
+				velocityCondition = @state.xVelocity > 0
+				xPos = 100 - paddle.config.xGap - paddle.config.width - @config.width
+				xCondition = @state.xPos > xPos
+			else
+				velocityCondition = @state.xVelocity < 0
+				xPos = paddle.config.xGap + paddle.config.width
+				xCondition = @state.xPos < xPos
+			
+			whereBallHitPaddle = @getWhereBallHitPaddle paddle, velocityCondition, xCondition
+			if whereBallHitPaddle
+				@state.xPos = xPos
 				@state.xVelocity *= -1
-				@state.yVelocity = @config.initVelocity * whereBallHitRightPaddle
-			
-			whereBallHitLeftPaddle = @getWhereBallHitLeftPaddle leftPaddle
-			if whereBallHitLeftPaddle
-				@state.xPos = rightPaddle.config.xGap + rightPaddle.config.width
-				@state.xVelocity *= -1
-				@state.yVelocity = @config.initVelocity * whereBallHitLeftPaddle
+				@state.yVelocity = @config.initVelocity * whereBallHitPaddle
 		
-		getWhereBallHitRightPaddle: (rightPaddle) ->
-			paddleTopYPos = rightPaddle.state.yPos - @config.height
-			paddleBottomYPos = rightPaddle.state.yPos + rightPaddle.config.height
-			return null unless @state.xVelocity > 0
-			return null unless @state.xPos > (100 - rightPaddle.config.xGap - rightPaddle.config.width - @config.width)
-			return null unless paddleTopYPos < @state.yPos < paddleBottomYPos
+		getWhereBallHitPaddle: (paddle, velocityCondition, xCondition) ->
+			paddleTopYPos = paddle.state.yPos - @config.height
+			paddleBottomYPos = paddle.state.yPos + paddle.config.height
+			yCondition = paddleTopYPos < @state.yPos < paddleBottomYPos
 			
-			distanceFromTop = @state.yPos - paddleTopYPos
-			paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
-			fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
-			
-			# Move the zero-point and size of 0.0...0.5...1.0 to -1.0...0.0...1.0
-			return (fractionAlongPaddle - 0.5) * 2
-		
-		getWhereBallHitLeftPaddle: (leftPaddle) ->
-			paddleTopYPos = leftPaddle.state.yPos - @config.height
-			paddleBottomYPos = leftPaddle.state.yPos + leftPaddle.config.height
-			return null unless @state.xVelocity < 0
-			return null unless @state.xPos < (leftPaddle.config.xGap + leftPaddle.config.width)
-			return null unless paddleTopYPos < @state.yPos < paddleBottomYPos
+			return null unless velocityCondition
+			return null unless xCondition
+			return null unless yCondition
 			
 			distanceFromTop = @state.yPos - paddleTopYPos
 			paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
