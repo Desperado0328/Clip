@@ -209,6 +209,21 @@
 		# paddle.hit(ball))? One more thing to note is that the global window knows about
 		# both paddles at the same time, while in the current implementation ball only
 		# knows about one paddle at a time (with the exception of calling paddle.isRight)
+		#     So, the options are:
+		# ball.bounce(paddle) # This is the current implementation. It keeps the window
+		#                     # logic simple, but requires extra if-statements
+		#                     # (paddle.isRight) to determine which paddle it's bouncing
+		#                     # off of.
+		# paddle.hit(ball) # This can take advantage of method overriding to eliminate
+		#                  # if-statements to determine which paddle is being hit; the
+		#                  # paddle already knows which one it is. However, if there are
+		#                  # ever multiple balls, they won't be able to take advantage
+		#                  # of method overriding too (this is an argument for window
+		#                  # to handle things).
+		# window.detectCollision(ball, paddles) # This is the original implementation. It
+		#                                       # knows about both paddles but perhaps
+		#                                       # muddies up the simple "initialize and
+		#                                       # play" code.
 		bounce: (paddle) ->
 			# If the ball is beyond the bounds of the game window, pull it back in and negate
 			# the velocity to simulate a bounce.
