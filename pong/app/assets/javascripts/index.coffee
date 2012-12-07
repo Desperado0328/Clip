@@ -70,10 +70,9 @@
 			@ball.resize()
 		
 		updateState: ->
-			@leftPaddle.$self.css 'top', @leftPaddle.state.yPos + PERCENT
-			@rightPaddle.$self.css 'top', @rightPaddle.state.yPos + PERCENT
-			@ball.$self.css 'left', @ball.state.xPos + PERCENT
-			@ball.$self.css 'top', @ball.state.yPos + PERCENT
+			@leftPaddle.updateState()
+			@rightPaddle.updateState()
+			@ball.updateState()
 		
 		attachHandlers: ->
 			# Modified from: http://stackoverflow.com/a/6011119/770170
@@ -132,6 +131,9 @@
 				yPos: 0 # %
 				yVelocity: 0.05 * @TIME_STEP # % per time step
 		
+		updateState: ->
+			@$self.css 'top', @state.yPos + PERCENT
+		
 		stepAI: ->
 			@state.yPos += @state.yVelocity
 			if @state.yPos < 0
@@ -175,6 +177,10 @@
 		resize: ->
 			@$self.css 'width', @config.width + PERCENT
 			@$self.css 'height', @config.height + PERCENT
+		
+		updateState: ->
+			@$self.css 'left', @state.xPos + PERCENT
+			@$self.css 'top', @state.yPos + PERCENT
 		
 		step: (leftPaddle, rightPaddle) ->
 			@state.xPos += @state.xVelocity
