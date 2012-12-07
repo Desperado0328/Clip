@@ -2,74 +2,27 @@
 # (0, 0) coordinates located in upper-left corner of game window, (100, 100) in lower-right
 
 ;(-> # TODO Is this unnecessary in CoffeeScript?
-	# TODO Don't make thi global
+	# TODO Don't make these global
 	GAME_WINDOW_ASPECT_RATIO = 3 / 2 # width / height
+	PERCENT = '%' # CSS
+	PX = 'px'
+	KEY_CODES = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+		UP: 38
+		DOWN: 40
+		P: 80
+		A: 65
+		Z: 90
 	
 	$ -> new Pong new Paddle('.paddle.left'), new Paddle('.paddle.right'), new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
 	
-	class Animatable
-		constructor: ->
-			@TIME_STEP = 20 # milliseconds
-	
-	class Paddle extends Animatable
-		constructor: (locator) ->
-			super()
-			
-			@$self = $ locator
-			
-			# TODO Make this a static property (see http://arcturo.github.com/library/coffeescript/03_classes.html)
-			@config =
-				paddleWidth: 3 # %
-				paddleHeight: 20 # %
-				paddleXGap: 10 # %
-				initPaddleVelocity: 5 # % per keypress
-			
-			@state =
-				yPos: 0 # %
-				yVelocity: 0.05 * @TIME_STEP # % per time step
-	
-	class Ball extends Animatable
-		constructor: (locator, gameWindowAspectRatio) ->
-			super()
-			
-			@$self = $ locator
-			
-			ballWidth = 4 # % (and em for border-radius)			
-			# The ball aspect ratio is the inverse of the game window aspect ratio, canceling
-			# it out and resulting in a 1:1 aspect ratio (a square ball).
-			ballHeight = ballWidth * gameWindowAspectRatio # %
-			
-			@config =
-				ballWidth: ballWidth
-				ballHeight: ballHeight
-				baselineBallVelocity: 0.06 * @TIME_STEP # % per time step
-			
-			@state =
-				yPos: 50 # %
-				xPos: 50 # %
-				xVelocity: 0.02 * @TIME_STEP # % per time step
-				yVelocity: 0.06 * @TIME_STEP # % per time step
-	
 	class Pong
 		constructor: (@leftPaddle, @rightPaddle, @ball) ->
-			# Constants
-			@PERCENT = '%' # CSS
-			@PX = 'px'
-			@keyCodes = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-				UP: 38
-				DOWN: 40
-				P: 80
-				A: 65
-				Z: 90
-			
-			# Instance variables
 			@config = @getConfig()
 			@state = @getState()
 			@$gameWindow = $ '.game-window'
 			@$window = $ window
 			@$document = $ document
 			
-			# Actually do the work of initializing
 			@init()
 		
 		init: ->
@@ -93,13 +46,13 @@
 		updateCss: ->
 			@resizeGameWindow @windowAspectRatio()
 			
-			@leftPaddle.$self.css 'width', @leftPaddle.config.paddleWidth + @PERCENT
-			@leftPaddle.$self.css 'height', @leftPaddle.config.paddleHeight + @PERCENT
-			@leftPaddle.$self.css 'left', @leftPaddle.config.paddleXGap + @PERCENT
+			@leftPaddle.$self.css 'width', @leftPaddle.config.width + PERCENT
+			@leftPaddle.$self.css 'height', @leftPaddle.config.height + PERCENT
+			@leftPaddle.$self.css 'left', @leftPaddle.config.xGap + PERCENT
 			
-			@rightPaddle.$self.css 'width', @rightPaddle.config.paddleWidth + @PERCENT
-			@rightPaddle.$self.css 'height', @rightPaddle.config.paddleHeight + @PERCENT
-			@rightPaddle.$self.css 'right', @rightPaddle.config.paddleXGap + @PERCENT
+			@rightPaddle.$self.css 'width', @rightPaddle.config.width + PERCENT
+			@rightPaddle.$self.css 'height', @rightPaddle.config.height + PERCENT
+			@rightPaddle.$self.css 'right', @rightPaddle.config.xGap + PERCENT
 		
 		windowAspectRatio: ->
 			@$window.width() / @$window.height()
@@ -107,39 +60,34 @@
 		resizeGameWindow: (windowAspectRatio) ->
 			if @config.aspectRatio < windowAspectRatio
 				# maximize height because there isn't much height to work with
-				@$gameWindow.css 'height', (@config.longestSide * @$window.height()) + @PX
-				@$gameWindow.css 'width', @$gameWindow.height() * @config.aspectRatio + @PX
+				@$gameWindow.css 'height', (@config.longestSide * @$window.height()) + PX
+				@$gameWindow.css 'width', @$gameWindow.height() * @config.aspectRatio + PX
 			else
 				# maximize width because there isn't much width to work with
-				@$gameWindow.css 'width', (@config.longestSide * @$window.width()) + @PX
-				@$gameWindow.css 'height', @$gameWindow.width() / @config.aspectRatio + @PX
+				@$gameWindow.css 'width', (@config.longestSide * @$window.width()) + PX
+				@$gameWindow.css 'height', @$gameWindow.width() / @config.aspectRatio + PX
 			
-			@resizeBall()
-		
-		resizeBall: ->
-			@ball.$self.css 'width', @ball.config.ballWidth + @PERCENT
-			@ball.$self.css 'height', @ball.config.ballHeight + @PERCENT
-			# #cannot be rendered fast enough @ball.$self.css 'border-radius', (@ball.$self.width() / 2) + @PX # Calculate epirically because % cannot be used on border-radius
+			@ball.resize()
 		
 		updateState: ->
-			@leftPaddle.$self.css 'top', @leftPaddle.state.yPos + @PERCENT
-			@rightPaddle.$self.css 'top', @rightPaddle.state.yPos + @PERCENT
-			@ball.$self.css 'left', @ball.state.xPos + @PERCENT
-			@ball.$self.css 'top', @ball.state.yPos + @PERCENT
+			@leftPaddle.$self.css 'top', @leftPaddle.state.yPos + PERCENT
+			@rightPaddle.$self.css 'top', @rightPaddle.state.yPos + PERCENT
+			@ball.$self.css 'left', @ball.state.xPos + PERCENT
+			@ball.$self.css 'top', @ball.state.yPos + PERCENT
 		
 		attachHandlers: ->
 			# Modified from: http://stackoverflow.com/a/6011119/770170
 			@$document.keydown((e) =>
 				switch e.which
-					when @keyCodes.DOWN
-						@rightPaddle.state.yPos += @rightPaddle.config.initPaddleVelocity unless @state.paused
-					when @keyCodes.UP
-						@rightPaddle.state.yPos -= @rightPaddle.config.initPaddleVelocity unless @state.paused
-					when @keyCodes.Z
-						@leftPaddle.state.yPos += @leftPaddle.config.initPaddleVelocity unless @state.paused
-					when @keyCodes.A
-						@leftPaddle.state.yPos -= @leftPaddle.config.initPaddleVelocity unless @state.paused
-					when @keyCodes.P
+					when KEY_CODES.DOWN
+						@rightPaddle.state.yPos += @rightPaddle.config.initVelocity unless @state.paused
+					when KEY_CODES.UP
+						@rightPaddle.state.yPos -= @rightPaddle.config.initVelocity unless @state.paused
+					when KEY_CODES.Z
+						@leftPaddle.state.yPos += @leftPaddle.config.initVelocity unless @state.paused
+					when KEY_CODES.A
+						@leftPaddle.state.yPos -= @leftPaddle.config.initVelocity unless @state.paused
+					when KEY_CODES.P
 						if !@state.paused
 							@state.paused = true
 							clearInterval @state.intervalId
@@ -148,7 +96,7 @@
 							@state.paused = false
 							@play()
 				@rightPaddle.state.yPos = 0 if @rightPaddle.state.yPos < 0
-				@rightPaddle.state.yPos = 100 - @rightPaddle.config.paddleHeight if @rightPaddle.state.yPos > 100 - @rightPaddle.config.paddleHeight
+				@rightPaddle.state.yPos = 100 - @rightPaddle.config.height if @rightPaddle.state.yPos > 100 - @rightPaddle.config.height
 				@updateState()
 			)
 			
@@ -158,78 +106,124 @@
 		
 		play: ->
 			@state.intervalId = window.setInterval( =>
-				@stepBall()
-				@stepAI()
+				@ball.step(@leftPaddle, @rightPaddle)
+				@leftPaddle.stepAI()
+				@updateState()
 			, @ball.TIME_STEP)
-		
-		stepBall: ->
-			@ball.state.xPos += @ball.state.xVelocity
-			@ball.state.yPos += @ball.state.yVelocity
-			@bounceOffEdges()
-			@bounceOffPaddles()
-			@updateState()
+	
+	class Animatable
+		constructor: ->
+			@TIME_STEP = 20 # milliseconds
+	
+	class Paddle extends Animatable
+		constructor: (locator) ->
+			super()
+			
+			@$self = $ locator
+			
+			# TODO Make this a static property (see http://arcturo.github.com/library/coffeescript/03_classes.html)
+			@config =
+				width: 3 # %
+				height: 20 # %
+				xGap: 10 # %
+				initVelocity: 5 # % per keypress
+			
+			@state =
+				yPos: 0 # %
+				yVelocity: 0.05 * @TIME_STEP # % per time step
 		
 		stepAI: ->
-			@leftPaddle.state.yPos += @leftPaddle.state.yVelocity
-			if @leftPaddle.state.yPos < 0
-				@leftPaddle.state.yPos = 0
-				@leftPaddle.state.yVelocity *= -1
-			if @leftPaddle.state.yPos > (100 - @leftPaddle.config.paddleHeight)
-				@leftPaddle.state.yPos = 100 - @leftPaddle.config.paddleHeight
-				@leftPaddle.state.yVelocity *= -1
+			@state.yPos += @state.yVelocity
+			if @state.yPos < 0
+				@state.yPos = 0
+				@state.yVelocity *= -1
+			if @state.yPos > (100 - @config.height)
+				@state.yPos = 100 - @config.height
+				@state.yVelocity *= -1
+	
+	class Ball extends Animatable
+		constructor: (locator, gameWindowAspectRatio) ->
+			super()
+			
+			@$self = $ locator
+			
+			width = 4 # % (and em for border-radius)			
+			# The ball aspect ratio is the inverse of the game window aspect ratio, canceling
+			# it out and resulting in a 1:1 aspect ratio (a square ball).
+			height = width * gameWindowAspectRatio # %
+			@config =
+				width: width
+				height: height
+				initVelocity: 0.06 * @TIME_STEP # % per time step
+			
+			@state =
+				yPos: 50 # %
+				xPos: 50 # %
+				xVelocity: 0.02 * @TIME_STEP # % per time step
+				yVelocity: 0.06 * @TIME_STEP # % per time step
+		
+		resize: ->
+			@$self.css 'width', @config.width + PERCENT
+			@$self.css 'height', @config.height + PERCENT
+		
+		step: (leftPaddle, rightPaddle) ->
+			@state.xPos += @state.xVelocity
+			@state.yPos += @state.yVelocity
+			@bounceOffEdges()
+			@bounceOffPaddles leftPaddle, rightPaddle
 		
 		bounceOffEdges: ->
 			# If the ball is beyond the bounds of the game window, pull it back in and negate
 			# the velocity to simulate a bounce
-			if @ball.state.xPos < 0
-				@ball.state.xPos = 0
-				@ball.state.xVelocity *= -1
-			if @ball.state.xPos > 100 - @ball.config.ballWidth
-				@ball.state.xPos = 100 - @ball.config.ballWidth
-				@ball.state.xVelocity *= -1
-			if @ball.state.yPos < 0
-				@ball.state.yPos = 0
-				@ball.state.yVelocity *= -1
-			if @ball.state.yPos > 100 - @ball.config.ballHeight
-				@ball.state.yPos = 100 - @ball.config.ballHeight
-				@ball.state.yVelocity *= -1
+			if @state.xPos < 0
+				@state.xPos = 0
+				@state.xVelocity *= -1
+			if @state.xPos > 100 - @config.width
+				@state.xPos = 100 - @config.width
+				@state.xVelocity *= -1
+			if @state.yPos < 0
+				@state.yPos = 0
+				@state.yVelocity *= -1
+			if @state.yPos > 100 - @config.height
+				@state.yPos = 100 - @config.height
+				@state.yVelocity *= -1
 		
 		# TODO DRY
-		bounceOffPaddles: ->
-			whereBallHitRightPaddle = @getWhereBallHitRightPaddle()
+		bounceOffPaddles: (leftPaddle, rightPaddle) ->
+			whereBallHitRightPaddle = @getWhereBallHitRightPaddle rightPaddle
 			if whereBallHitRightPaddle
-				@ball.state.xPos = 100 - @rightPaddle.config.paddleXGap - @rightPaddle.config.paddleWidth - @ball.config.ballWidth
-				@ball.state.xVelocity *= -1
-				@ball.state.yVelocity = @ball.config.baselineBallVelocity * whereBallHitRightPaddle
+				@state.xPos = 100 - rightPaddle.config.xGap - rightPaddle.config.width - @config.width
+				@state.xVelocity *= -1
+				@state.yVelocity = @config.initVelocity * whereBallHitRightPaddle
 			
-			whereBallHitLeftPaddle = @getWhereBallHitLeftPaddle()
+			whereBallHitLeftPaddle = @getWhereBallHitLeftPaddle leftPaddle
 			if whereBallHitLeftPaddle
-				@ball.state.xPos = @rightPaddle.config.paddleXGap + @rightPaddle.config.paddleWidth
-				@ball.state.xVelocity *= -1
-				@ball.state.yVelocity = @ball.config.baselineBallVelocity * whereBallHitLeftPaddle
+				@state.xPos = rightPaddle.config.xGap + rightPaddle.config.width
+				@state.xVelocity *= -1
+				@state.yVelocity = @config.initVelocity * whereBallHitLeftPaddle
 		
-		getWhereBallHitRightPaddle: ->
-			paddleTopYPos = @rightPaddle.state.yPos - @ball.config.ballHeight
-			paddleBottomYPos = @rightPaddle.state.yPos + @rightPaddle.config.paddleHeight
-			return null unless @ball.state.xVelocity > 0
-			return null unless @ball.state.xPos > (100 - @rightPaddle.config.paddleXGap - @rightPaddle.config.paddleWidth - @ball.config.ballWidth)
-			return null unless paddleTopYPos < @ball.state.yPos < paddleBottomYPos
+		getWhereBallHitRightPaddle: (rightPaddle) ->
+			paddleTopYPos = rightPaddle.state.yPos - @config.height
+			paddleBottomYPos = rightPaddle.state.yPos + rightPaddle.config.height
+			return null unless @state.xVelocity > 0
+			return null unless @state.xPos > (100 - rightPaddle.config.xGap - rightPaddle.config.width - @config.width)
+			return null unless paddleTopYPos < @state.yPos < paddleBottomYPos
 			
-			distanceFromTop = @ball.state.yPos - paddleTopYPos
+			distanceFromTop = @state.yPos - paddleTopYPos
 			paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
 			fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
 			
 			# Move the zero-point and size of 0.0...0.5...1.0 to -1.0...0.0...1.0
 			return (fractionAlongPaddle - 0.5) * 2
 		
-		getWhereBallHitLeftPaddle: ->
-			paddleTopYPos = @leftPaddle.state.yPos - @ball.config.ballHeight
-			paddleBottomYPos = @leftPaddle.state.yPos + @leftPaddle.config.paddleHeight
-			return null unless @ball.state.xVelocity < 0
-			return null unless @ball.state.xPos < (@leftPaddle.config.paddleXGap + @leftPaddle.config.paddleWidth)
-			return null unless paddleTopYPos < @ball.state.yPos < paddleBottomYPos
+		getWhereBallHitLeftPaddle: (leftPaddle) ->
+			paddleTopYPos = leftPaddle.state.yPos - @config.height
+			paddleBottomYPos = leftPaddle.state.yPos + leftPaddle.config.height
+			return null unless @state.xVelocity < 0
+			return null unless @state.xPos < (leftPaddle.config.xGap + leftPaddle.config.width)
+			return null unless paddleTopYPos < @state.yPos < paddleBottomYPos
 			
-			distanceFromTop = @ball.state.yPos - paddleTopYPos
+			distanceFromTop = @state.yPos - paddleTopYPos
 			paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
 			fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
 			
