@@ -180,8 +180,8 @@
 			@state.xPos += @state.xVelocity
 			@state.yPos += @state.yVelocity
 			@bounceOffEdges()
-			@bounceOffOf leftPaddle
-			@bounceOffOf rightPaddle
+			@bounce leftPaddle
+			@bounce rightPaddle
 		
 		bounceOffEdges: ->
 			# If the ball is beyond the bounds of the game window, pull it back in and negate
@@ -199,7 +199,17 @@
 				@state.yPos = 100 - @config.height
 				@state.yVelocity *= -1
 		
-		bounceOffOf: (paddle) ->
+		# TODO This code could be cleaner if the ball contained a reference to the paddle
+		# and the paddle contained a reference to the ball. Then they could ask each other
+		# questions about their properties. Or, this functionality could be moved to the
+		# global window, which would ask questions of the ball and the paddle separately
+		# and then assemble the information. This was how things were before the
+		# functionality was moved to the ball. Moving the functionality to the global
+		# window would be more symmetric (why allow ball.bounce(paddle) but not
+		# paddle.hit(ball))? One more thing to note is that the global window knows about
+		# both paddles at the same time, while in the current implementation ball only
+		# knows about one paddle at a time (with the exception of calling paddle.isRight)
+		bounce: (paddle) ->
 			# If the ball is beyond the bounds of the game window, pull it back in and negate
 			# the velocity to simulate a bounce.
 			
