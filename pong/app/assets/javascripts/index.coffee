@@ -151,7 +151,7 @@ class Pong
 		if whereBallHitPaddle
 			@ball.state.xPos = edge.xPos
 			@ball.state.xVelocity *= -1
-			@ball.state.yVelocity = @ball.config.yVelocityBaseline * whereBallHitPaddle
+			@ball.state.yVelocity = @ball.config.initYVelocity * whereBallHitPaddle
 	
 	getWhereBallHitPaddle: (paddle, velocityCondition, xCondition) ->
 		paddleTopYPos = paddle.state.yPos - @ball.config.height
@@ -222,13 +222,14 @@ class LeftPaddle extends Paddle
 	
 	getEdgeConditions: (ball) ->
 		velocityCondition = ball.state.xVelocity < 0
-		xPos = @config.xGap + @config.width
-		xCondition = ball.state.xPos < xPos
+		edgeXPos = @config.xGap + @config.width
+		crossedTheEdge = ball.state.xPos < edgeXPos
+		crossedTheEdgeLastStep = ball.state.xPos - edgeXPos <= ball.state.xVelocity
 		
 		# return
 		velocityCondition: velocityCondition
-		xPos: xPos
-		xCondition: xCondition
+		xPos: edgeXPos
+		xCondition: crossedTheEdge && crossedTheEdgeLastStep
 
 class RightPaddle extends Paddle
 	constructor: (locator) ->
@@ -236,13 +237,14 @@ class RightPaddle extends Paddle
 	
 	getEdgeConditions: (ball) ->
 		velocityCondition = ball.state.xVelocity > 0
-		xPos = 100 - @config.xGap - @config.width - ball.config.width
-		xCondition = ball.state.xPos > xPos
+		edgeXPos = 100 - @config.xGap - @config.width - ball.config.width
+		crossedTheEdge = ball.state.xPos > edgeXPos
+		crossedTheEdgeLastStep = ball.state.xPos - edgeXPos <= ball.state.xVelocity
 		
 		# return
 		velocityCondition: velocityCondition
-		xPos: xPos
-		xCondition: xCondition
+		xPos: edgeXPos
+		xCondition: crossedTheEdge && crossedTheEdgeLastStep
 
 class Ball extends Animatable
 	constructor: (locator, gameWindowAspectRatio) ->
@@ -257,14 +259,14 @@ class Ball extends Animatable
 		@config =
 			width: width
 			height: height
-			yVelocityBaseline: 0.06 * @TIME_STEP # % per time step
+			initYVelocity: 0.06 * @TIME_STEP # % per time step
 			yVelocityMultiplier: 3
 		
 		@state =
-			yPos: 50 # %
-			xPos: 50 # %
-			xVelocity: @config.yVelocityBaseline / 2
-			yVelocity: @config.yVelocityBaseline
+			xPos: 50 - (@config.width / 2) # %
+			yPos: 50 - (@config.height / 2) # %
+			xVelocity: @config.initYVelocity / 2
+			yVelocity: @config.initYVelocity
 	
 	resize: ->
 		@$self.css 'width', @config.width + PERCENT
