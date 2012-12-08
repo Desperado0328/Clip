@@ -135,18 +135,11 @@ class Pong
 			@ball.state.yVelocity *= -1
 	
 	bounceBallOff: (paddle) ->
-		if paddle.isRight
-			velocityCondition = @ball.state.xVelocity > 0
-			xPos = 100 - paddle.config.xGap - paddle.config.width - @ball.config.width
-			xCondition = @ball.state.xPos > xPos
-		else
-			velocityCondition = @ball.state.xVelocity < 0
-			xPos = paddle.config.xGap + paddle.config.width
-			xCondition = @ball.state.xPos < xPos
+		edge = paddle.getEdgeConditions @ball
 		
-		whereBallHitPaddle = @getWhereBallHitPaddle paddle, velocityCondition, xCondition
+		whereBallHitPaddle = @getWhereBallHitPaddle paddle, edge.velocityCondition, edge.xCondition
 		if whereBallHitPaddle
-			@ball.state.xPos = xPos
+			@ball.state.xPos = edge.xPos
 			@ball.state.xVelocity *= -1
 			@ball.state.yVelocity = @ball.config.initVelocity * whereBallHitPaddle
 	
@@ -202,12 +195,30 @@ class Paddle extends Animatable
 class LeftPaddle extends Paddle
 	constructor: (locator) ->
 		super locator
-		@isRight = false
+	
+	getEdgeConditions: (ball) ->
+		velocityCondition = ball.state.xVelocity < 0
+		xPos = @config.xGap + @config.width
+		xCondition = ball.state.xPos < xPos
+		
+		# return
+		velocityCondition: velocityCondition
+		xPos: xPos
+		xCondition: xCondition
 
 class RightPaddle extends Paddle
 	constructor: (locator) ->
 		super locator
-		@isRight = true
+	
+	getEdgeConditions: (ball) ->
+		velocityCondition = ball.state.xVelocity > 0
+		xPos = 100 - @config.xGap - @config.width - ball.config.width
+		xCondition = ball.state.xPos > xPos
+		
+		# return
+		velocityCondition: velocityCondition
+		xPos: xPos
+		xCondition: xCondition
 
 class Ball extends Animatable
 	constructor: (locator, gameWindowAspectRatio) ->
