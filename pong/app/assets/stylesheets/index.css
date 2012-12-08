@@ -22,6 +22,21 @@ h1 {
 	background-color: #222;
 }
 
+.score {
+	position: absolute;
+	color: #ddd;
+	top: 10%;
+	font-size: 300%;
+}
+
+.left-score {
+	left: 40%;
+}
+
+.right-score {
+	right: 40%;
+}
+
 .paddle, .ball {
 	position: absolute;
 	background-color: #ddd;
@@ -31,15 +46,15 @@ h1 {
 	background-color: orange;
 }
 
+.left-paddle {
+	background-color: orange; /* DEBUG */
+}
+
+.right-paddle {
+	background-color: orange; /* DEBUG */
+}
+
 .ball {
-}
-
-.left {
-	background-color: orange; /* DEBUG */
-}
-
-.right {
-	background-color: orange; /* DEBUG */
 }
 
 .text-center {

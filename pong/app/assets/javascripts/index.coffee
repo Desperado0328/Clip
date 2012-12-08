@@ -1,7 +1,11 @@
 # Pong
-# (0, 0) coordinates located in upper-left corner of game window, (100, 100) in lower-right
+# Coordinates range from (0, 0) in upper-left corner to (100, 100) in lower-right
 
-$ -> new Pong new LeftPaddle('.paddle.left'), new RightPaddle('.paddle.right'), new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
+$ -> new Pong new Score('.left-score', 0)
+	, new Score('.right-score', 0)
+	, new LeftPaddle('.left-paddle')
+	, new RightPaddle('.right-paddle')
+	, new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
 
 # TODO Don't make these global
 GAME_WINDOW_ASPECT_RATIO = 3 / 2 # width / height
@@ -15,7 +19,7 @@ KEY_CODES = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-ke
 	Z: 90
 
 class Pong
-	constructor: (@leftPaddle, @rightPaddle, @ball) ->
+	constructor: (@leftScore, @rightScore, @leftPaddle, @rightPaddle, @ball) ->
 		@config = @getConfig()
 		@state = @getState()
 		@$gameWindow = $ '.game-window'
@@ -67,11 +71,15 @@ class Pong
 			@$gameWindow.css 'height', @$gameWindow.width() / @config.aspectRatio + PX
 		
 		@ball.resize()
+		@leftScore.resize @$gameWindow.height()
+		@rightScore.resize @$gameWindow.height()
 	
 	updateState: ->
 		@leftPaddle.updateState()
 		@rightPaddle.updateState()
 		@ball.updateState()
+		@leftScore.updateState()
+		@rightScore.updateState()
 	
 	attachHandlers: ->
 		# Modified from: http://stackoverflow.com/a/6011119/770170
@@ -121,16 +129,18 @@ class Pong
 		@bounceBallOff @rightPaddle
 	
 	bounceBallOffEdges: ->
-		if @ball.state.xPos < 0
+		if @ball.state.xPos < 0 # left edge
 			@ball.state.xPos = 0
 			@ball.state.xVelocity *= -1
-		if @ball.state.xPos > 100 - @ball.config.width
+			@rightScore.add 1
+		if @ball.state.xPos > 100 - @ball.config.width # right edge
 			@ball.state.xPos = 100 - @ball.config.width
 			@ball.state.xVelocity *= -1
-		if @ball.state.yPos < 0
+			@leftScore.add 1
+		if @ball.state.yPos < 0 # top edge
 			@ball.state.yPos = 0
 			@ball.state.yVelocity *= -1
-		if @ball.state.yPos > 100 - @ball.config.height
+		if @ball.state.yPos > 100 - @ball.config.height # bottom edge
 			@ball.state.yPos = 100 - @ball.config.height
 			@ball.state.yVelocity *= -1
 	
@@ -158,7 +168,21 @@ class Pong
 		
 		# Convert 0..1 to -1..1 (move the halfway point from 0.5 to 0 and then expand)
 		return (fractionAlongPaddle - 0.5) * @ball.config.yVelocityMultiplier
+
+class Score
+	constructor: (locator, @score) ->
+		@$self = $ locator
+		@fontSize = .10 # % / 100
 	
+	updateState: ->
+		@$self.text @score
+	
+	resize: (windowHeight) ->
+		@$self.css 'font-size', (windowHeight * @fontSize) + PX
+	
+	add: (amount) ->
+		@score += amount
+
 class Animatable
 	constructor: ->
 		@TIME_STEP = 20 # milliseconds
