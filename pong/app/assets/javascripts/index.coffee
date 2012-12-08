@@ -224,7 +224,7 @@ class LeftPaddle extends Paddle
 		velocityCondition = ball.state.xVelocity < 0
 		edgeXPos = @config.xGap + @config.width
 		crossedTheEdge = ball.state.xPos < edgeXPos
-		crossedTheEdgeLastStep = ball.state.xPos - edgeXPos <= ball.state.xVelocity
+		crossedTheEdgeLastStep = edgeXPos - ball.state.xPos <= Math.abs(ball.state.xVelocity)
 		
 		# return
 		velocityCondition: velocityCondition
