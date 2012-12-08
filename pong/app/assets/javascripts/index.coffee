@@ -141,7 +141,7 @@ class Pong
 		if whereBallHitPaddle
 			@ball.state.xPos = edge.xPos
 			@ball.state.xVelocity *= -1
-			@ball.state.yVelocity = @ball.config.initVelocity * whereBallHitPaddle
+			@ball.state.yVelocity = @ball.config.yVelocityBaseline * whereBallHitPaddle
 	
 	getWhereBallHitPaddle: (paddle, velocityCondition, xCondition) ->
 		paddleTopYPos = paddle.state.yPos - @ball.config.height
@@ -156,8 +156,8 @@ class Pong
 		paddleHeightWithExtra = paddleBottomYPos - paddleTopYPos
 		fractionAlongPaddle = distanceFromTop / paddleHeightWithExtra
 		
-		# Move the zero-point and size of 0.0...0.5...1.0 to -1.0...0.0...1.0
-		return (fractionAlongPaddle - 0.5) * 2
+		# Convert 0..1 to -1..1 (move the halfway point from 0.5 to 0 and then expand)
+		return (fractionAlongPaddle - 0.5) * @ball.config.yVelocityMultiplier
 	
 class Animatable
 	constructor: ->
@@ -182,6 +182,10 @@ class Paddle extends Animatable
 	
 	updateState: ->
 		@$self.css 'top', @state.yPos + PERCENT
+
+class LeftPaddle extends Paddle
+	constructor: (locator) ->
+		super locator
 	
 	stepAI: ->
 		@state.yPos += @state.yVelocity
@@ -191,10 +195,6 @@ class Paddle extends Animatable
 		if @state.yPos > (100 - @config.height)
 			@state.yPos = 100 - @config.height
 			@state.yVelocity *= -1
-
-class LeftPaddle extends Paddle
-	constructor: (locator) ->
-		super locator
 	
 	getEdgeConditions: (ball) ->
 		velocityCondition = ball.state.xVelocity < 0
@@ -233,13 +233,14 @@ class Ball extends Animatable
 		@config =
 			width: width
 			height: height
-			initVelocity: 0.06 * @TIME_STEP # % per time step
+			yVelocityBaseline: 0.06 * @TIME_STEP # % per time step
+			yVelocityMultiplier: 3
 		
 		@state =
 			yPos: 50 # %
 			xPos: 50 # %
-			xVelocity: 0.02 * @TIME_STEP # % per time step
-			yVelocity: 0.06 * @TIME_STEP # % per time step
+			xVelocity: @config.yVelocityBaseline / 2
+			yVelocity: @config.yVelocityBaseline
 	
 	resize: ->
 		@$self.css 'width', @config.width + PERCENT
