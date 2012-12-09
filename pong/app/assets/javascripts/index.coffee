@@ -1,11 +1,12 @@
 # Pong
 # Coordinates range from (0, 0) in upper-left corner to (100, 100) in lower-right
 
-$ -> new Pong new Score('.left-score', 0)
-	, new Score('.right-score', 0)
-	, new LeftPaddle('.left-paddle')
+$ -> new Pong new LeftPaddle('.left-paddle')
 	, new RightPaddle('.right-paddle')
 	, new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
+	, new Score('.left-score', 0)
+	, new Score('.right-score', 0)
+	, new BasicIntelligence
 
 # TODO Don't make these global
 GAME_WINDOW_ASPECT_RATIO = 3 / 2 # width / height
@@ -19,7 +20,7 @@ KEY_CODES = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-ke
 	Z: 90
 
 class Pong
-	constructor: (@leftScore, @rightScore, @leftPaddle, @rightPaddle, @ball) ->
+	constructor: (@leftPaddle, @rightPaddle, @ball, @leftScore, @rightScore, @paddleAI) ->
 		@config = @getConfig()
 		@state = @getState()
 		@$gameWindow = $ '.game-window'
@@ -119,7 +120,7 @@ class Pong
 	
 	stepObjects: ->
 		@ball.step(@leftPaddle, @rightPaddle)
-		@leftPaddle.stepAI()
+		@paddleAI.step(@leftPaddle, @ball)
 	
 	handleCollisions: ->
 		# If the ball is beyond the bounds of an edge while moving away from it, pull it
@@ -183,6 +184,43 @@ class Score
 	add: (amount) ->
 		@score += amount
 
+class ArtificialIntelligence
+	constructor: ->
+		
+
+class NoIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball=null) ->
+		paddle.state.yPos += paddle.state.yVelocity
+		if paddle.state.yPos < 0
+			paddle.state.yPos = 0
+			paddle.state.yVelocity *= -1
+		if paddle.state.yPos > (100 - paddle.config.height)
+			paddle.state.yPos = 100 - paddle.config.height
+			paddle.state.yVelocity *= -1
+
+class BasicIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball) ->
+		paddleMidpointY = paddle.state.yPos + (paddle.config.height / 2)
+		ballMidpointY = ball.state.yPos + (ball.config.height / 2)
+		if paddleMidpointY < ballMidpointY
+			paddle.state.yVelocity = Math.abs(paddle.state.yVelocity)
+		else
+			paddle.state.yVelocity = Math.abs(paddle.state.yVelocity) * -1
+		
+		paddle.state.yPos += paddle.state.yVelocity
+		if paddle.state.yPos < 0
+			paddle.state.yPos = 0
+			paddle.state.yVelocity *= -1
+		if paddle.state.yPos > (100 - paddle.config.height)
+			paddle.state.yPos = 100 - paddle.config.height
+			paddle.state.yVelocity *= -1
+
 class Animatable
 	constructor: ->
 		@TIME_STEP = 20 # milliseconds
@@ -208,17 +246,8 @@ class Paddle extends Animatable
 		@$self.css 'top', @state.yPos + PERCENT
 
 class LeftPaddle extends Paddle
-	constructor: (locator) ->
+	constructor: (locator, artificialIntelligence) ->
 		super locator
-	
-	stepAI: ->
-		@state.yPos += @state.yVelocity
-		if @state.yPos < 0
-			@state.yPos = 0
-			@state.yVelocity *= -1
-		if @state.yPos > (100 - @config.height)
-			@state.yPos = 100 - @config.height
-			@state.yVelocity *= -1
 	
 	getEdgeConditions: (ball) ->
 		velocityCondition = ball.state.xVelocity < 0
@@ -259,12 +288,12 @@ class Ball extends Animatable
 		@config =
 			width: width
 			height: height
-			initYVelocity: 0.06 * @TIME_STEP # % per time step
+			initYVelocity: 0.1 * @TIME_STEP # % per time step
 			yVelocityMultiplier: 3
 		
 		@state =
-			xPos: 50 - (@config.width / 2) # %
-			yPos: 50 - (@config.height / 2) # %
+			xPos: 50 - (@config.width / 2) # % (the exact center)
+			yPos: 50 - (@config.height / 2) # % (the exact center)
 			xVelocity: @config.initYVelocity / 2
 			yVelocity: @config.initYVelocity
 	

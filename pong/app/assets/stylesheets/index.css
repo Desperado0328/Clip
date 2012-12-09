@@ -30,11 +30,11 @@ h1 {
 }
 
 .left-score {
-	left: 40%;
+	left: 37%; /* Room for approximately three digits */
 }
 
 .right-score {
-	right: 40%;
+	right: 37%; /* Room for approximately three digits */
 }
 
 .paddle, .ball {
