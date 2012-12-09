@@ -221,6 +221,13 @@ class BasicIntelligence extends ArtificialIntelligence
 			paddle.state.yPos = 100 - paddle.config.height
 			paddle.state.yVelocity *= -1
 
+class HumanIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball=null) ->
+		# no op (allow keyboard to control the paddle)
+
 class Animatable
 	constructor: ->
 		@TIME_STEP = 20 # milliseconds
