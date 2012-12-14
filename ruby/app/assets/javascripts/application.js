@@ -12,4 +12,5 @@
 //
 //= require jquery
 // require jquery_ujs <-- Prevents Malte Wassermann's Viewport Resizer from working; probably something to do with iframes
-//= require_tree .
+//= require global
+// require_tree . <-- Don't include every file in every page; only the controller-specific code.
