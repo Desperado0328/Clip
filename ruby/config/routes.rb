@@ -1,4 +1,7 @@
 Clip::Application.routes.draw do
+	root :to => redirect('/pong')
+	match '/pong' => 'pong#index'
+	
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
