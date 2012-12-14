@@ -1,5 +1,4 @@
 Clip::Application.routes.draw do
-	root :to => redirect('/pong')
 	match '/pong' => 'pong#index'
 	match '/ownership' => 'owner#index'
 	
