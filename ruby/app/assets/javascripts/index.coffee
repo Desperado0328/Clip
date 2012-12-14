@@ -1,3 +1,7 @@
+# Place all the behaviors and hooks related to the matching controller here.
+# All this logic will automatically be available in application.js.
+# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
+
 # Pong
 # Coordinates range from (0, 0) in upper-left corner to (100, 100) in lower-right
 
