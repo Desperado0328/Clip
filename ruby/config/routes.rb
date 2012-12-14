@@ -1,7 +1,7 @@
 Clip::Application.routes.draw do
 	root :to => redirect('/pong')
 	match '/pong' => 'pong#index'
-	match '/owner' => 'owner#index'
+	match '/ownership' => 'owner#index'
 	
   # The priority is based upon order of creation:
   # first created -> highest priority.
