@@ -1,4 +1,5 @@
 Clip::Application.routes.draw do
+	root :to => 'home#index'
 	match '/pong' => 'pong#index'
 	match '/ownership' => 'owner#index'
 	
