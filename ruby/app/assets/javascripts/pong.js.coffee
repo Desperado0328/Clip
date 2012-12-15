@@ -10,7 +10,8 @@ $ -> new Pong new LeftPaddle('.left-paddle')
 	, new Ball('.ball', GAME_WINDOW_ASPECT_RATIO)
 	, new Score('.left-score', 0)
 	, new Score('.right-score', 0)
-	, new BasicIntelligence
+	, new ReturnToMiddleIntelligence
+	, new ReturnToMiddleIntelligence
 
 # TODO Don't make these global
 GAME_WINDOW_ASPECT_RATIO = 3 / 2 # width / height
@@ -24,7 +25,7 @@ KEY_CODES = # http://www.cambiaresearch.com/articles/15/javascript-char-codes-ke
 	Z: 90
 
 class Pong
-	constructor: (@leftPaddle, @rightPaddle, @ball, @leftScore, @rightScore, @paddleAI) ->
+	constructor: (@leftPaddle, @rightPaddle, @ball, @leftScore, @rightScore, @leftPaddleAI, @rightPaddleAI) ->
 		@config = @getConfig()
 		@state = @getState()
 		@$gameWindow = $ '.game-window'
@@ -91,12 +92,16 @@ class Pong
 		@$document.keydown((e) =>
 			switch e.which
 				when KEY_CODES.DOWN
+					@rightPaddleAI = new KeyboardIntelligence
 					@rightPaddle.state.yPos += @rightPaddle.config.initVelocity unless @state.paused
 				when KEY_CODES.UP
+					@rightPaddleAI = new KeyboardIntelligence
 					@rightPaddle.state.yPos -= @rightPaddle.config.initVelocity unless @state.paused
 				when KEY_CODES.Z
+					@leftPaddleAI = new KeyboardIntelligence
 					@leftPaddle.state.yPos += @leftPaddle.config.initVelocity unless @state.paused
 				when KEY_CODES.A
+					@leftPaddleAI = new KeyboardIntelligence
 					@leftPaddle.state.yPos -= @leftPaddle.config.initVelocity unless @state.paused
 				when KEY_CODES.P
 					if !@state.paused
@@ -106,8 +111,12 @@ class Pong
 					else
 						@state.paused = false
 						@play()
+			# TODO DRY
+			@leftPaddle.state.yPos = 0 if @leftPaddle.state.yPos < 0
+			@leftPaddle.state.yPos = 100 - @leftPaddle.config.height if @leftPaddle.state.yPos > 100 - @leftPaddle.config.height
 			@rightPaddle.state.yPos = 0 if @rightPaddle.state.yPos < 0
 			@rightPaddle.state.yPos = 100 - @rightPaddle.config.height if @rightPaddle.state.yPos > 100 - @rightPaddle.config.height
+			
 			@updateState()
 		)
 		
@@ -124,7 +133,8 @@ class Pong
 	
 	stepObjects: ->
 		@ball.step(@leftPaddle, @rightPaddle)
-		@paddleAI.step(@leftPaddle, @ball)
+		@leftPaddleAI.step(@leftPaddle, @ball)
+		@rightPaddleAI.step(@rightPaddle, @ball)
 	
 	handleCollisions: ->
 		# If the ball is beyond the bounds of an edge while moving away from it, pull it
@@ -191,41 +201,57 @@ class Score
 class ArtificialIntelligence
 	constructor: ->
 		
-
-class NoIntelligence extends ArtificialIntelligence
-	constructor: ->
-		
-	
-	step: (paddle, ball=null) ->
+	stepAndBounceOffEdges: (paddle) ->
 		paddle.state.yPos += paddle.state.yVelocity
+		
 		if paddle.state.yPos < 0
 			paddle.state.yPos = 0
 			paddle.state.yVelocity *= -1
 		if paddle.state.yPos > (100 - paddle.config.height)
 			paddle.state.yPos = 100 - paddle.config.height
 			paddle.state.yVelocity *= -1
-
-class BasicIntelligence extends ArtificialIntelligence
-	constructor: ->
-		
 	
-	step: (paddle, ball) ->
-		paddleMidpointY = paddle.state.yPos + (paddle.config.height / 2)
-		ballMidpointY = ball.state.yPos + (ball.config.height / 2)
+	getMidpoint: (object) ->
+		object.state.yPos + (object.config.height / 2)
+	
+	moveMidpointTowardBall: (paddle, ball) ->
+		paddleMidpointY = @getMidpoint paddle
+		ballMidpointY = @getMidpoint ball
 		if paddleMidpointY < ballMidpointY
 			paddle.state.yVelocity = Math.abs(paddle.state.yVelocity)
 		else
 			paddle.state.yVelocity = Math.abs(paddle.state.yVelocity) * -1
-		
-		paddle.state.yPos += paddle.state.yVelocity
-		if paddle.state.yPos < 0
-			paddle.state.yPos = 0
-			paddle.state.yVelocity *= -1
-		if paddle.state.yPos > (100 - paddle.config.height)
-			paddle.state.yPos = 100 - paddle.config.height
-			paddle.state.yVelocity *= -1
 
-class HumanIntelligence extends ArtificialIntelligence
+class BackAndForthIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball=null) ->
+		@stepAndBounceOffEdges paddle
+
+class FollowBallIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball) ->
+		@moveMidpointTowardBall paddle, ball
+		@stepAndBounceOffEdges paddle
+
+class ReturnToMiddleIntelligence extends ArtificialIntelligence
+	constructor: ->
+		
+	
+	step: (paddle, ball) ->
+		if paddle.getEdgeConditions(ball).velocityCondition
+			@moveMidpointTowardBall paddle, ball
+		else
+			if @getMidpoint(paddle) < 50
+				paddle.state.yVelocity = Math.abs(paddle.state.yVelocity)
+			else
+				paddle.state.yVelocity = Math.abs(paddle.state.yVelocity) * -1
+		@stepAndBounceOffEdges paddle
+		
+class KeyboardIntelligence extends ArtificialIntelligence
 	constructor: ->
 		
 	
@@ -250,7 +276,7 @@ class Paddle extends Animatable
 			initVelocity: 5 # % per keypress
 		
 		@state =
-			yPos: 0 # %
+			yPos: 50 - (@config.height / 2) # % (the exact center)
 			yVelocity: 0.05 * @TIME_STEP # % per time step
 	
 	updateState: ->
