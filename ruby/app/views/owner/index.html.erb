@@ -5,12 +5,13 @@
 		<li><%= json %></li>
 	<% # Uh, apparently the Array condition is never called. %>
 	<% elsif json.is_a? Array %>
+		<li><%= '[' %></li>
 		<% json.each_with_index do |value, index| %>
-			<li><%= index %></li>
 			<ul>
 			<% print_json value %>
 			</ul>
 		<% end %>
+		<li><%= ']' %></li>
 	<% elsif json.is_a? Hash %>
 		<% json.each do |key, value| %>
 			<% if value.is_a? String %>
