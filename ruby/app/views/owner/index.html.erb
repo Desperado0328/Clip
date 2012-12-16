@@ -1,14 +1,32 @@
 <h1>Corporate ownership trees</h1>
 
-<ul>
-	<li>Tree</li>
-	<ul>
-		<li>Branch</li>
-		<ul>
-			<li>Twig</li>
+<% def print_json(json) %>
+	<% if json.is_a? String %>
+		<li><%= json %></li>
+	<% # Uh, apparently the Array condition is never called. %>
+	<% elsif json.is_a? Array %>
+		<% json.each_with_index do |value, index| %>
+			<li><%= index %></li>
 			<ul>
-				<li>Leaf</li>
+			<% print_json value %>
 			</ul>
-		</ul>
-	</ul>
+		<% end %>
+	<% elsif json.is_a? Hash %>
+		<% json.each do |key, value| %>
+			<% if value.is_a? String %>
+				<li><%= key + ': ' + value %></li>
+			<% else %>
+				<li><%= key + ':' %></li>
+				<ul>
+				<% print_json value %>
+				</ul>
+			<% end %>
+		<% end %>
+	<% else %>
+		<li>JSON not formatted correctly. Encountered something that is neither a String, an Array, nor a Hash.</li>
+	<% end %>
+<% end %>
+
+<ul>
+<% print_json @tree %>
 </ul>
