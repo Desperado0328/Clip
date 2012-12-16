@@ -1,23 +1,20 @@
 <h1>Corporate ownership trees</h1>
 
-<% def print_json_list(json) %>
+<% def print_plain_json_list(json) %>
 	<% if json.is_a? String %>
 		<li><%= json %></li>
 	<% elsif json.is_a? Array %>
-		<% json.each_with_index do |value, index| %>
-			<li><%= index %></li>
-			<ul>
-			<% print_json_list value %>
-			</ul>
+		<% json.each do |value, index| %>
+			<% print_plain_json_list value %>
 		<% end %>
 	<% elsif json.is_a? Hash %>
+		<% array_containers = ['corporations', 'brands', 'products'] %>
 		<% json.each do |key, value| %>
-			<% if value.is_a? String %>
-				<li><%= key + ': ' + value %></li>
-			<% else %>
-				<li><%= key + ':' %></li>
+			<% if key == 'name' %>
+				<li><%= value %></li>
+			<% elsif array_containers.include? key %>
 				<ul>
-				<% print_json_list value %>
+					<% print_plain_json_list value %>
 				</ul>
 			<% end %>
 		<% end %>
@@ -26,6 +23,4 @@
 	<% end %>
 <% end %>
 
-<ul>
-<% print_json_list @tree %>
-</ul>
+<% print_plain_json_list @tree %>
