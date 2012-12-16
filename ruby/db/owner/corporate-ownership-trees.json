@@ -66,6 +66,540 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "Sony",
+            "sources": [
+                "http://www.sony.com/SCA/index.shtml"
+            ],
+            "brands": [
+                {
+                    "name": "Sony Electronics Inc.",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/electronics.shtml"
+                    ],
+                    "products": [
+                        "BRAVIA",
+                        "Blu-ray Disc Players",
+                        "Walkman",
+                        "Handycam",
+                        "Cyber-shot",
+                        "VAIO"
+                    ]
+                },
+                {
+                    "name": "Sony Pictures Entertainment",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/pictures.shtml"
+                    ],
+                    "products": [
+                        "Columbia Pictures",
+                        "Sony Pictures Classics",
+                        "Screen Gems",
+                        "TriStar Pictures",
+                        "Crackle"
+                    ]
+                },
+                {
+                    "name": "Sony Music Entertainment",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/sonymusic.shtml"
+                    ],
+                    "products": [
+                        "Columbia Records",
+                        "RCA Records",
+                        "Epic Records"
+                    ]
+                },
+                {
+                    "name": "Sony Computer Entertainment America LLC",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/computer.shtml"
+                    ],
+                    "products": [
+                        "PlayStation",
+                        "PSP",
+                        "Gran Turismo"
+                    ]
+                },
+                {
+                    "name": "Sony Network Entertainment",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/snei.shtml"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Sony DADC Americas",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/discmanu.shtml"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Sony/ATV Music Publishing (50% ownership)",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/atv.shtml"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Sony Mobile Communications",
+                    "sources": [
+                        "http://www.sony.com/SCA/outline/mobile.shtml"
+                    ],
+                    "products": [
+                        "Xperia NXT"
+                    ]
+                },
+                {
+                    "name": "Sony Card Marketing & Services Company",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#sonycard"
+                    ],
+                    "products": [
+                        "Sony Card"
+                    ]
+                },
+                {
+                    "name": "Sony Wonder Technology Lab",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#wondertechlab"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Gracenote",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#gracenote"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Sony Biotechnology Inc.",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#SonyBiotechnologyInc"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Micronics Inc.",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#micronics"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Music Choice",
+                    "sources": [
+                        "http://www.sony.com/SCA/otherbusiness.shtml#musicchoice"
+                    ],
+                    "products": []
+                }
+            ]
+        },
+        {
+            "name": "General Electric",
+            "sources": [
+                "http://www.ge.com/directory/business_sites.html",
+                "http://www.ge.com/products_services/directory/by_product.html"
+            ],
+            "brands": [
+                {
+                    "name": "GE Appliances",
+                    "sources": [
+                        "http://www.geappliances.com/appliances/"
+                    ],
+                    "products": [
+                        "Refrigeration",
+                        "Cooking",
+                        "Clean Up",
+                        "Home Laundry",
+                        "Household Products",
+                        "Commercial Products"
+                    ]
+                },
+                {
+                    "name": "GE Aviation",
+                    "sources": [
+                        "http://www.geaviation.com/"
+                    ],
+                    "products": [
+                        "Engines"
+                    ]
+                },
+                {
+                    "name": "Consumer Products (Jasco)",
+                    "sources": [
+                        "http://www.jascoproducts.com/"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Customer Training",
+                    "sources": [
+                        "http://www.ge.com/products_services/customer_training.html"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Energy",
+                    "sources": [
+                        "https://www.gewaterlearning.com/momentum/index.php"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Energy",
+                    "sources": [
+                        "http://www.ge-energy.com/about/index.jsp"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Capital",
+                    "sources": [
+                        "http://www.gecapital.com/en/",
+                        "https://www.gogecapital.com/en/consumer-credit-financing/index.html"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Healthcare",
+                    "sources": [
+                        "http://www3.gehealthcare.com/en/Global_Gateway"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Lighting",
+                    "sources": [
+                        "http://www.gelighting.com/na/"
+                    ],
+                    "products": [
+                        "GE Reveal"
+                    ]
+                },
+                {
+                    "name": "GE Oil & Gas",
+                    "sources": [
+                        "http://www.ge-energy.com/about/oil_and_gas.jsp"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Transportation",
+                    "sources": [
+                        "http://www.getransportation.com/"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Intelligent Platforms",
+                    "sources": [
+                        "http://www.ge-ip.com/"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "GE Power & Water",
+                    "sources": [
+                        "https://knowledgecentral.gewater.com/kcpguest/loginPortal.do"
+                    ],
+                    "products": []
+                }
+            ]
+        },
+        {
+            "name": "Time Warner",
+            "sources": [
+                "http://www.timewarner.com/careers/areas-of-operation/our-divisions/"
+            ],
+            "brands": [
+                {
+                    "name": "HBO",
+                    "sources": [
+                        "http://www.hbo.com/"
+                    ],
+                    "products": [
+                        "HBO",
+                        "Cinemax"
+                    ]
+                },
+                {
+                    "name": "Time Inc.",
+                    "sources": [
+                        "http://www.timeinc.com/home/"
+                    ],
+                    "products": [
+                        "CNNMoney",
+                        "Fortune magazine",
+                        "LIFE",
+                        "People magazine",
+                        "Sports Illustrated",
+                        "TIME magazine"
+                    ]
+                },
+                {
+                    "name": "Time Warner Corporate",
+                    "sources": [
+                        "http://www.timewarner.com/careers/areas-of-operation/our-divisions/time-warner-corporate/"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Turner Broadcasting System",
+                    "sources": [
+                        "http://www.turner.com/"
+                    ],
+                    "products": [
+                        "CNN",
+                        "Cartoon Network",
+                        "HLN",
+                        "Turner Classic Movies",
+                        "TBS",
+                        "TNT",
+                        "truTV"
+                    ]
+                },
+                {
+                    "name": "Warner Bros. Entertainment",
+                    "sources": [
+                        "http://www.warnerbros.com/"
+                    ],
+                    "products": [
+                        "The WB",
+                        "D.C. Comics",
+                        "Harry Potter",
+                        "Looney Tunes"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "News Corporation",
+            "sources": [
+                "http://www.newscorp.com/"
+            ],
+            "brands": [
+                {
+                    "name": "Cable Network Programming",
+                    "sources": [
+                        "http://www.newscorp.com/operations/cable.html"
+                    ],
+                    "products": [
+                        "FOX",
+                        "FX",
+                        "National Geographic"
+                    ]
+                },
+                {
+                    "name": "Filmed Entertainment",
+                    "sources": [
+                        "http://www.newscorp.com/operations/index.html"
+                    ],
+                    "products": [
+                        "20th Century Fox",
+                        "Fox Searchlight Pictures"
+                    ]
+                },
+                {
+                    "name": "Television",
+                    "sources": [
+                        "http://www.newscorp.com/operations/television.html"
+                    ],
+                    "products": [
+                        "FOX"
+                    ]
+                },
+                {
+                    "name": "Direct Broadcast Satellite Television",
+                    "sources": [
+                        "http://www.newscorp.com/operations/dbst.html"
+                    ],
+                    "products": []
+                },
+                {
+                    "name": "Publishing",
+                    "sources": [
+                        "http://www.newscorp.com/operations/publishing.html"
+                    ],
+                    "products": [
+                        "Daily Telegraph",
+                        "Dow Jones",
+                        "New York Post",
+                        "The Daily",
+                        "The Wall Street Journal"
+                    ]
+                },
+                {
+                    "name": "Other Assets",
+                    "sources": [
+                        "http://www.newscorp.com/operations/other.html#"
+                    ],
+                    "products": [
+                        "American Idol",
+                        "AskMen",
+                        "Hulu (31% ownership)",
+                        "IGN",
+                        "National Rugby League"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Viacom",
+            "sources": [
+                "http://www.viacom.com/OURBRANDS/Pages/default.aspx"
+            ],
+            "brands": [
+                {
+                    "name": "Viacom Media Networks",
+                    "sources": [
+                        "http://www.viacom.com/ourbrands/medianetworks/Pages/default.aspx"
+                    ],
+                    "products": [
+                        "BET",
+                        "Comedy Central",
+                        "MTV",
+                        "Neopets",
+                        "Nickelodeon",
+                        "Spike",
+                        "TV Land",
+                        "VH1"
+                    ]
+                },
+                {
+                    "name": "Paramount Pictures Corporation",
+                    "sources": [
+                        "http://www.viacom.com/ourbrands/paramountmotionspicturegroup/Pages/default.aspx"
+                    ],
+                    "products": [
+                        "Paramount Pictures",
+                        "MTV Films",
+                        "Nickelodeon Movies",
+                        "",
+                        ""
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "The Walt Disney Company",
+            "sources": [
+                "http://thewaltdisneycompany.com/disney-companies"
+            ],
+            "brands": [
+                {
+                    "name": "Media Networks",
+                    "sources": [
+                        "http://thewaltdisneycompany.com/disney-companies/media-networks"
+                    ],
+                    "products": [
+                        "ESPN",
+                        "ABC",
+                        "Hulu (27% ownership)"
+                    ]
+                },
+                {
+                    "name": "Parks and Resorts",
+                    "sources": [
+                        "http://thewaltdisneycompany.com/disney-companies/parks-and-resorts"
+                    ],
+                    "products": [
+                        "Disneyland",
+                        "Walt Disney World"
+                    ]
+                },
+                {
+                    "name": "The Walt Disney Studios",
+                    "sources": [
+                        "http://thewaltdisneycompany.com/disney-companies/studio-entertainment"
+                    ],
+                    "products": [
+                        "Walt Disney Studios Motion Pictures",
+                        "Marvel Studios",
+                        "Touchstone Pictures",
+                        "Pixar"
+                    ]
+                },
+                {
+                    "name": "Disney Consumer Products",
+                    "sources": [
+                        "http://thewaltdisneycompany.com/disney-companies/disney-consumer-products"
+                    ],
+                    "products": [
+                        "Disney Store"
+                    ]
+                },
+                {
+                    "name": "Disney Interactive",
+                    "sources": [
+                        "http://thewaltdisneycompany.com/disney-companies/disney-interactive-media-group"
+                    ],
+                    "products": []
+                }
+            ]
+        },
+        {
+            "name": "Comcast",
+            "sources": [
+                "http://corporate.comcast.com/our-company/businesses"
+            ],
+            "brands": [
+                {
+                    "name": "Comcast Cable",
+                    "sources": [
+                        "http://corporate.comcast.com/our-company/businesses/comcast-cable"
+                    ],
+                    "products": [
+                        "XFINITY"
+                    ]
+                },
+                {
+                    "name": "NBCUniversal",
+                    "sources": [
+                        "http://corporate.comcast.com/our-company/businesses/nbcuniversal"
+                    ],
+                    "brands": [
+                        {
+                            "name": "Cable Networks",
+                            "sources": [],
+                            "products": [
+                                "USA",
+                                "Bravo",
+                                "Golf Channel",
+                                "Fandango",
+                                "Hulu (32% ownership)"
+                            ]
+                        },
+                        {
+                            "name": "Broadcast Television",
+                            "sources": [],
+                            "brands": [
+                                "NBC Sports",
+                                "The Today Show"
+                            ]
+                        },
+                        {
+                            "name": "Filmed Entertainment",
+                            "sources": [],
+                            "brands": [
+                                "Universal Pictures",
+                                "Focus Features"
+                            ]
+                        },
+                        {
+                            "name": "Parks & Resorts",
+                            "sources": [],
+                            "brands": [
+                                "Universal Studios Hollywood",
+                                "Universal Orlando"
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
