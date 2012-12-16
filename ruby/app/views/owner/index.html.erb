@@ -3,7 +3,6 @@
 <% def print_json(json) %>
 	<% if json.is_a? String %>
 		<li><%= json %></li>
-	<% # Uh, apparently the Array condition is never called. %>
 	<% elsif json.is_a? Array %>
 		<li><%= '[' %></li>
 		<% json.each_with_index do |value, index| %>
@@ -13,7 +12,9 @@
 		<% end %>
 		<li><%= ']' %></li>
 	<% elsif json.is_a? Hash %>
+		<li><%= '{' %></li>
 		<% json.each do |key, value| %>
+			<ul>
 			<% if value.is_a? String %>
 				<li><%= key + ': ' + value %></li>
 			<% else %>
@@ -22,7 +23,9 @@
 				<% print_json value %>
 				</ul>
 			<% end %>
+			</ul>
 		<% end %>
+		<li><%= '}' %></li>
 	<% else %>
 		<li>JSON not formatted correctly. Encountered something that is neither a String, an Array, nor a Hash.</li>
 	<% end %>
