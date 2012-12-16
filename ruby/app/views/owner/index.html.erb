@@ -1,36 +1,31 @@
 <h1>Corporate ownership trees</h1>
 
-<% def print_json(json) %>
+<% def print_json_list(json) %>
 	<% if json.is_a? String %>
 		<li><%= json %></li>
 	<% elsif json.is_a? Array %>
-		<li><%= '[' %></li>
 		<% json.each_with_index do |value, index| %>
+			<li><%= index %></li>
 			<ul>
-			<% print_json value %>
+			<% print_json_list value %>
 			</ul>
 		<% end %>
-		<li><%= ']' %></li>
 	<% elsif json.is_a? Hash %>
-		<li><%= '{' %></li>
 		<% json.each do |key, value| %>
-			<ul>
 			<% if value.is_a? String %>
 				<li><%= key + ': ' + value %></li>
 			<% else %>
 				<li><%= key + ':' %></li>
 				<ul>
-				<% print_json value %>
+				<% print_json_list value %>
 				</ul>
 			<% end %>
-			</ul>
 		<% end %>
-		<li><%= '}' %></li>
 	<% else %>
 		<li>JSON not formatted correctly. Encountered something that is neither a String, an Array, nor a Hash.</li>
 	<% end %>
 <% end %>
 
 <ul>
-<% print_json @tree %>
+<% print_json_list @tree %>
 </ul>
