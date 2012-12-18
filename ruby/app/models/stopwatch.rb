@@ -3,5 +3,5 @@ class Stopwatch < ActiveRecord::Base
   
   validates :time, :presence => true
   
-   has_many :laps, :dependent => :destroy
+  has_many :laps, :dependent => :destroy
 end

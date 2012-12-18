@@ -2,6 +2,7 @@ Clip::Application.routes.draw do
 	root :to => 'home#index'
 	match '/pong' => 'pong#index'
 	match '/ownership' => 'owner#index'
+	match '/stopwatch' => 'stopwatch#index'
 	
   # The priority is based upon order of creation:
   # first created -> highest priority.
