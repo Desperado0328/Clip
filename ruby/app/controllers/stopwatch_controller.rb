@@ -8,7 +8,7 @@ class StopwatchController < ApplicationController
 		if @stopwatch.save
 			flash[:notice] = 'Stopwatch was successfully created.'
 		else
-			flash[:error] = 'Could not create a new stopwatch.'
+			flash[:error] = ['Could not create a new stopwatch for the following reason: ', @stopwatch.errors]
 		end
 		redirect_to stopwatch_path
 	end
