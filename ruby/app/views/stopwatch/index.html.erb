@@ -8,18 +8,6 @@
 <input type="submit" value="New stopwatch">
 </form>
 
-<div class="stopwatch">
-00:00:00.000
-</div>
-
-<div class="stopwatch">
-00:00:00.000
-</div>
-
-<div class="stopwatch">
-00:00:00.000
-</div>
-
 <% @stopwatches.each do |stopwatch| %>
 	<div class="stopwatch">
 		<span id="<%= stopwatch.id %>" class="time"><%= stopwatch.time %></span>
