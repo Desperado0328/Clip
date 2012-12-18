@@ -18,3 +18,18 @@ h1 {
 ul, ol {
 	margin: 0 0 0 2%;
 }
+
+.flash {
+	color: #fff;
+}
+
+.notice {
+	@extend .flash;
+	padding: 0.5%;
+	background-color: #080;
+}
+.error {
+	@extend .flash;
+	padding: 0.5%;
+	background-color: #800;
+}

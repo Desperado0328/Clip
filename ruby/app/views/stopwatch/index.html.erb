@@ -1,8 +1,12 @@
 <h1>Stopwatch</h1>
 
-<div class="stopwatch">
-00:00:00.000
-</div>
+<% flash.each do |key, value| %>
+	<div class="flash <%= key %>"><%= value %></div>
+<% end %>
+
+<form name="new-stopwatch" action="/stopwatch/create" method="post">
+<input type="submit" value="New stopwatch">
+</form>
 
 <div class="stopwatch">
 00:00:00.000
@@ -11,3 +15,13 @@
 <div class="stopwatch">
 00:00:00.000
 </div>
+
+<div class="stopwatch">
+00:00:00.000
+</div>
+
+<% @stopwatches.each do |stopwatch| %>
+	<div class="stopwatch">
+		<span id="<%= stopwatch.id %>" class="time"><%= stopwatch.time %></span>
+	</div>
+<% end %>

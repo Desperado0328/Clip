@@ -3,6 +3,8 @@ Clip::Application.routes.draw do
 	match '/pong' => 'pong#index'
 	match '/ownership' => 'owner#index'
 	match '/stopwatch' => 'stopwatch#index'
+	match '/stopwatch/create' => 'stopwatch#create'
+	delete '/stopwatch/:id' => 'stopwatch#delete'
 	
   # The priority is based upon order of creation:
   # first created -> highest priority.
