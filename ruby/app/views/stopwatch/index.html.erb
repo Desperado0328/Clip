@@ -9,7 +9,7 @@
 </form>
 
 <% @stopwatches.each do |stopwatch| %>
-	<div class="stopwatch">
-		<span id="<%= stopwatch.id %>" class="time"><%= stopwatch.time %></span>
+	<div id="stopwatch-<%= stopwatch.id %>" class="stopwatch">
+		<span class="time"><%= stopwatch.time %></span>
 	</div>
 <% end %>

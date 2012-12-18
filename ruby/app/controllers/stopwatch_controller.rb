@@ -4,7 +4,7 @@ class StopwatchController < ApplicationController
 	end
 	
 	def create
-		@stopwatch = Stopwatch.new({ :time => 0, :paused => false })
+		@stopwatch = Stopwatch.new({ :time => 0, :paused => true })
 		if @stopwatch.save
 			flash[:notice] = 'Stopwatch was successfully created.'
 		else
