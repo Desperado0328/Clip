@@ -5,9 +5,9 @@
 $ -> init()
 
 init = ->
-	$('.time').text(constituentString(Number($('.time').text())))
+	$('.time').text(constituents(Number($('.time').text())))
 
-constituentString = (milliseconds_overflowing) ->
+constituents = (milliseconds_overflowing) ->
 	milliseconds = milliseconds_overflowing % 1000
 	seconds_overflowing = Math.floor(milliseconds_overflowing / 1000)
 	seconds = seconds_overflowing % 60
@@ -18,8 +18,8 @@ constituentString = (milliseconds_overflowing) ->
 	
 	[pad(hours, 2), pad(minutes, 2), pad(seconds, 2)].join(':') + '.' + pad(milliseconds, 3)
 	
-pad = (num, length, padWith='0') ->
-	string = num + ''
-	while string.length < length
-		string = padWith + string
-	string
+pad = (unpadded, length, padWith='0') ->
+	retval = unpadded + '' # Cast to string
+	while retval.length < length
+		retval = padWith + retval
+	retval
