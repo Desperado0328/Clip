@@ -8,7 +8,7 @@ class StopwatchController < ApplicationController
 		if @stopwatch.save
 			flash[:notice] = 'Stopwatch was successfully created.'
 		else
-			flash[:error] = ['Could not create a new stopwatch for the following reason: ', @stopwatch.errors]
+			flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
 		end
 		redirect_to stopwatch_path
 	end
@@ -18,7 +18,7 @@ class StopwatchController < ApplicationController
 		if @stopwatch.destroy
 			flash[:notice] = 'Stopwatch was successfully deleted.'
 		else
-			flash[:error] = 'Could not delete stopwatch.'
+			flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
 		end
 		redirect_to stopwatch_path
   end

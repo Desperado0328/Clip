@@ -4,12 +4,17 @@
 	<div class="flash <%= key %>"><%= value %></div>
 <% end %>
 
-<form name="new-stopwatch" action="/stopwatch/create" method="post">
-<input type="submit" value="New stopwatch">
+<form name="create-stopwatch" action="/stopwatch/create" method="post">
+	<input type="submit" value="New stopwatch">
 </form>
 
+<h2>Stopwatches</h2>
 <% @stopwatches.each do |stopwatch| %>
-	<div id="stopwatch-<%= stopwatch.id %>" class="stopwatch">
-		<span class="time"><%= stopwatch.time %></span>
-	</div>
+	<!-- While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST. -->
+	<form name="destroy-stopwatch" action="/stopwatch/destroy/<%= stopwatch.id %>" method="post">
+		<div class="stopwatch stopwatch-<%= stopwatch.id %>">
+			<span class="time time-<%= stopwatch.id %>"><%= stopwatch.time %></span>
+			<input type="submit" value="Delete">
+		</div>
+	</form>
 <% end %>
