@@ -51,9 +51,10 @@ h2 {
 }
 
 @mixin nav-menu {
-	/* Simple reset */
+	/* simple reset */
 	margin: 0;
 	padding: 0;
+	z-index: 100;
 	
 	li {
 		list-style: none;
