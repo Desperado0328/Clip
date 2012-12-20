@@ -2,40 +2,96 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+/* http://colorschemedesigner.com/#3i61T80sO6q6q */
+$primary: #568080;
+$secondary-a: #64718f;
+$secondary-b: #73ab73;
+$complementary: #d5af90;
+
+$off-white: #eee;
+$off-black: #222;
+
 body {
 	font-family: "Helvetica", "Arial", sans-serif;
 	padding: 0 1% 0 1%;
-	background-color: #eee;
+	background-color: $off-white;
 }
 
 p, ul, ol, h1, h2, h3, h4, h5, h6 {
 	margin: 1% 0 1% 0;
-	color: #222;
+	color: $off-black;
 }
 
 h1 {
 	font-size: 200%;
+	color: $secondary-a;
 }
 
 h2 {
 	font-size: 125%;
+	color: $secondary-b;
 }
 
-ul, ol {
-	margin: 0 0 0 2%;
+.clear-both {
+	clear: both;
 }
 
 .flash {
 	color: #fff;
+	padding: 0.5%;
 }
 
 .notice {
 	@extend .flash;
-	padding: 0.5%;
 	background-color: #080;
 }
 .error {
 	@extend .flash;
-	padding: 0.5%;
 	background-color: #800;
+}
+
+@mixin any-menu {
+	li {
+		list-style: none;
+		width: 15em;
+	}
+	a {
+		padding: 0.5em;
+		font-size: 1.25em;
+		text-decoration: none;
+		background-color: $primary;
+		text-align: center;
+		white-space: nowrap;
+		display: block;
+		&:hover {
+			background-color: $secondary-b;
+		}
+		&:link, &:visited, &:hover, &:active {
+			color: $off-white;
+		}
+	}
+}
+
+.top-menu {
+	@include any-menu;
+	margin: 10px;
+	li {
+		/* Modified from: http://stackoverflow.com/a/13328340/770170 */
+		display: inline-block;
+		position: relative; /* enable absolute positioning in submenus */
+	}
+	a {
+		margin-right: 0.5em;
+		border-bottom: 3px solid $secondary-a;
+	}
+}
+
+.sub-menu {
+	@include any-menu;
+	position: absolute;
+	left: -9999px; /* more accessible than display: none; (http://csswizardry.com/2011/02/creating-a-pure-css-dropdown-menu/) */
+}
+
+li:hover .sub-menu {
+	left: 0px;
 }
