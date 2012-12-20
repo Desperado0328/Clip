@@ -1,3 +1,5 @@
+<% content_for :title, "Stopwatch | Clip" %>
+
 <% flash.each do |key, value| %>
 	<div class="flash <%= key %>"><%= value %></div>
 <% end %>
@@ -9,7 +11,6 @@
 	<input type="submit" value="New stopwatch">
 </form>
 
-<h2>Stopwatches</h2>
 <% @stopwatches.each do |stopwatch| %>
 	<!-- While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST. -->
 	<form name="destroy-stopwatch" action="/stopwatch/destroy/<%= stopwatch.id %>" method="post">
