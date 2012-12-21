@@ -6,7 +6,7 @@
 	<title><%= h yield(:title) %></title>
 	<%= favicon_link_tag "/favicon.ico" %>
 	<%= stylesheet_link_tag "application", :media => "all" %>
-	<%= stylesheet_link_tag params[:controller] %> <!-- Controller-specific code -->
+	<%= stylesheet_link_tag params[:controller], :media => "all" %> <!-- Controller-specific code -->
 	<%= csrf_meta_tags %>
 </head>
 <body>

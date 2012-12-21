@@ -2,14 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-/* http://colorschemedesigner.com/#3i61T80sO6q6q */
-$primary: #568080;
-$secondary-a: #64718f;
-$secondary-b: #73ab73;
-$complementary: #d5af90;
-
-$off-white: #eee;
-$off-black: #222;
+@import "variables.css.scss";
 
 body {
 	font-family: "Helvetica", "Arial", sans-serif;
