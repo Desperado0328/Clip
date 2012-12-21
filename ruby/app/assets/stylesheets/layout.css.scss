@@ -4,6 +4,28 @@
 
 @import "variables.css.scss";
 
+.clear-both {
+	clear: both;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.flash {
+	color: white;
+	padding: 0.5%;
+}
+
+.notice {
+	@extend .flash;
+	background-color: $secondary-b;
+}
+.error {
+	@extend .flash;
+	background-color: $complementary;
+}
+
 body {
 	font-family: "Helvetica", "Arial", sans-serif;
 	padding: 0 1% 0 1%;
@@ -16,31 +38,13 @@ p, ul, ol, h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-	font-size: 200%;
+	font-size: 2.25em;
 	color: $secondary-a;
 }
 
 h2 {
-	font-size: 125%;
+	font-size: 1.25em;
 	color: $secondary-b;
-}
-
-.clear-both {
-	clear: both;
-}
-
-.flash {
-	color: #fff;
-	padding: 0.5%;
-}
-
-.notice {
-	@extend .flash;
-	background-color: #080;
-}
-.error {
-	@extend .flash;
-	background-color: #800;
 }
 
 @mixin nav-menu {

@@ -26,6 +26,10 @@
 	<div class="clear-both"></div>
 </nav>
 
+<% flash.each do |key, value| %>
+	<div class="flash <%= key %>"><%= value %></div>
+<% end %>
+
 <%= yield %>
 
 <%= javascript_include_tag "application" %>

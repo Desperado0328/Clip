@@ -4,65 +4,41 @@
 
 @import "variables.css.scss";
 
-.notice {
-	margin: 1em;
-	padding: 0.5em;
-	background-color: green;
-	color: white;
-	font-family: "Helvetica", "Arial", sans-serif;
-}
-
-body {
-	font-family: "Helvetica", "Arial", sans-serif;
-}
+$score-position: 37%; // room for approximately three digits
 
 h1 {
 	margin: 0.5em auto 0 auto;
-	font-size: 2.25em;
-	color: #222;
 }
 
 .game-window {
-	position: relative; /* absolute children need relative parent */
+	position: relative; // absolute children need relative parent
 	margin: 1em auto;
-	background-color: #222;
+	background-color: $off-off-black;
 }
 
 .score {
 	position: absolute;
-	color: #ddd;
+	color: $off-off-white;
 	top: 10%;
 	font-size: 300%;
 }
 
 .left-score {
-	left: 37%; /* Room for approximately three digits */
+	left: $score-position;
 }
 
 .right-score {
-	right: 37%; /* Room for approximately three digits */
+	right: $score-position;
 }
 
 .paddle, .ball {
 	position: absolute;
-	background-color: #ddd;
 }
 
 .paddle {
 	background-color: orange;
 }
 
-.left-paddle {
-	background-color: orange; /* DEBUG */
-}
-
-.right-paddle {
-	background-color: orange; /* DEBUG */
-}
-
 .ball {
-}
-
-.text-center {
-	text-align: center;
+	background-color: $off-off-white;
 }
