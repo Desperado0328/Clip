@@ -5,10 +5,33 @@
 @import "variables.css.scss";
 
 .stopwatch {
-	margin: 0.25em 0 0.25em 0;
+	margin: 1em 1em 0 0;
+	padding: 1em;
+	background-color: lighten($primary, 10%);
+	color: $off-white;
+	display: inline-block;
 }
 
 .time {
+	font-size: 2em;
 	background-color: $off-off-black;
 	color: $off-white;
+}
+
+.lap-time {
+	font-size: 1em;
+}
+
+.laps {
+	height: 5em;
+	overflow: auto;
+	border: 1px solid black;
+	hr {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+.lap {
+	margin: 0 0.5em 0 0.5em;
 }

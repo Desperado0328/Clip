@@ -8,11 +8,24 @@
 </form>
 
 <% @stopwatches.each do |stopwatch| %>
-	<!-- While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST. -->
-	<form name="destroy-stopwatch" action="/stopwatch/destroy/<%= stopwatch.id %>" method="post">
-		<div class="stopwatch stopwatch-<%= stopwatch.id %>">
+	<div class="stopwatch stopwatch-<%= stopwatch.id %>">
+		<!-- While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST. -->
+		<form name="destroy-stopwatch-<%= stopwatch.id %>" action="/stopwatch/destroy/<%= stopwatch.id %>" method="post">
+			Lap: <span class="time lap-time lap-time-<%= stopwatch.id %>"><%= stopwatch.lap_total_at_last_pause %></span>
+			<input class="close-button" type="submit" value="X">
+			<br />
 			<span class="time time-<%= stopwatch.id %>"><%= stopwatch.total_at_last_pause %></span>
-			<input type="submit" value="Delete">
-		</div>
-	</form>
+			<br />
+			<button type="button" class="pause-button">Start</button>
+			<button type="button" class="lap-button">Lap</button>
+			<div class="laps">
+				<span class="lap">Lap 3: 01:23</span>
+				<hr>
+				<span class="lap">Lap 2: 01:23</span>
+				<hr>
+				<span class="lap">Lap 1: 01:23</span>
+				<hr>
+			</div>
+		</form>
+	</div>
 <% end %>
