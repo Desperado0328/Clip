@@ -11,7 +11,7 @@
 	<!-- While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST. -->
 	<form name="destroy-stopwatch" action="/stopwatch/destroy/<%= stopwatch.id %>" method="post">
 		<div class="stopwatch stopwatch-<%= stopwatch.id %>">
-			<span class="time time-<%= stopwatch.id %>"><%= stopwatch.time %></span>
+			<span class="time time-<%= stopwatch.id %>"><%= stopwatch.total_at_last_pause %></span>
 			<input type="submit" value="Delete">
 		</div>
 	</form>

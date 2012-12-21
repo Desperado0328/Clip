@@ -2,10 +2,8 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-$('.flash').click(->
-	$(this).hide()
-)
-
-$('.flash').delay(2000).fadeOut(1000, ->
-	# Animation complete.
+$('.close-button').click(->
+	$(this).parent().fadeOut('fast', ->
+		# Animation complete.
+	)
 )

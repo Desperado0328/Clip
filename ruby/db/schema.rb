@@ -11,20 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121218025902) do
+ActiveRecord::Schema.define(:version => 20121221211715) do
 
   create_table "laps", :force => true do |t|
-    t.integer  "time",         :default => 0, :null => false
+    t.integer  "total",        :default => 0, :null => false
     t.datetime "created_at",                  :null => false
     t.datetime "updated_at",                  :null => false
     t.integer  "stopwatch_id", :default => 0, :null => false
   end
 
   create_table "stopwatches", :force => true do |t|
-    t.integer  "time",       :default => 0,    :null => false
-    t.datetime "created_at",                   :null => false
-    t.datetime "updated_at",                   :null => false
-    t.boolean  "paused",     :default => true, :null => false
+    t.integer  "total_at_last_pause",         :default => 0,    :null => false
+    t.datetime "created_at",                                    :null => false
+    t.datetime "updated_at",                                    :null => false
+    t.boolean  "is_paused",                   :default => true, :null => false
+    t.datetime "datetime_at_last_resume"
+    t.datetime "lap_datetime_at_last_resume"
+    t.integer  "lap_total_at_last_pause",     :default => 0,    :null => false
   end
 
 end
