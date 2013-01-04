@@ -19,12 +19,17 @@
 			<button type="button" class="pause-button">Start</button>
 			<button type="button" class="lap-button">Lap</button>
 			<div class="laps">
+				<!-- This should probably be a list instead -->
 				<span class="lap">Lap 3: 01:23</span>
 				<hr>
 				<span class="lap">Lap 2: 01:23</span>
 				<hr>
 				<span class="lap">Lap 1: 01:23</span>
 				<hr>
+				<% stopwatch.laps.each do |lap| %>
+					<span class="lap">Lap 4: 99:99</span>
+					<hr>
+				<% end %>
 			</div>
 		</form>
 	</div>
