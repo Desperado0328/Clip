@@ -7,3 +7,18 @@ $('.close-button').click(->
 		# Animation complete.
 	)
 )
+
+# Modified from: http://stackoverflow.com/a/2729454/770170
+$(document).ajaxComplete((event, request) ->
+	flash =
+		notice: request.getResponseHeader('X-Flash-Notice')
+		error: request.getResponseHeader('X-Flash-Error')
+	
+	for key, value of flash
+		if value
+			$('.flash-container').append(
+				'<div class="flash ' + key + '">' + value +
+					'<button type="button" class="close-button">X</button>' + 
+				'</div>'
+			)
+)

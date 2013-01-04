@@ -24,7 +24,7 @@ pad = (unpadded, length, padWith='0') ->
 		retval = padWith + retval
 	retval
 
-stopwatchToDelete = (_this) ->
+getStopwatchId = (_this) ->
 	stopwatchId = -1
 	classList = $(_this).parent().attr('class').split(/\s+/)
 	# Modified from: http://stackoverflow.com/a/1227309/770170
@@ -36,7 +36,7 @@ stopwatchToDelete = (_this) ->
 
 # While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
 $('.destroy-stopwatch-button').click(->
-	stopwatchId = stopwatchToDelete(this)
+	stopwatchId = getStopwatchId(this)
 	
 	$.post("/stopwatch/destroy/" + stopwatchId, ->
 		console.log 'destroying stopwatch #' + stopwatchId + '...'
@@ -45,6 +45,6 @@ $('.destroy-stopwatch-button').click(->
 		console.log 'success!'
 	)
 	.error(->
-		console.log 'could NOT destroy stopwatch #' + stopwatchId
+		console.log 'could *not* destroy stopwatch #' + stopwatchId
 	)
 )

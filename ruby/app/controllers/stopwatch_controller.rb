@@ -1,9 +1,19 @@
 class StopwatchController < ApplicationController
 	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :resume, :lap]
+	after_filter :flash_to_headers
 	
 	def init_state_change
 		@stopwatch = Stopwatch.find(params[:id])
 		@now = Time.now # Please don't inline this, to ensure consistent values
+	end
+	
+	# Modified from: http://stackoverflow.com/a/2729454/770170
+	def flash_to_headers
+		return unless request.xhr?
+		response.headers['X-Flash-Notice'] = flash[:notice]
+		response.headers['X-Flash-Error'] = flash[:error]
+		
+		flash.discard # don't want the flash to appear when you reload page
 	end
 	
 	def index
