@@ -23,3 +23,28 @@ pad = (unpadded, length, padWith='0') ->
 	while retval.length < length
 		retval = padWith + retval
 	retval
+
+stopwatchToDelete = (_this) ->
+	stopwatchId = -1
+	classList = $(_this).parent().attr('class').split(/\s+/)
+	# Modified from: http://stackoverflow.com/a/1227309/770170
+	$.each(classList, (index, klass) ->
+		if klass.indexOf('stopwatch-') != -1 # String.contains(), per: http://stackoverflow.com/a/1789952/770170
+			stopwatchId = klass.substring('stopwatch-'.length) # Modified from: http://stackoverflow.com/a/4126795/770170
+	)
+	stopwatchId
+
+# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
+$('.destroy-stopwatch-button').click(->
+	stopwatchId = stopwatchToDelete(this)
+	
+	$.post("/stopwatch/destroy/" + stopwatchId, ->
+		console.log 'destroying stopwatch #' + stopwatchId + '...'
+	)
+	.success(->
+		console.log 'success!'
+	)
+	.error(->
+		console.log 'could NOT destroy stopwatch #' + stopwatchId
+	)
+)
