@@ -44,7 +44,4 @@ $('.destroy-stopwatch-button').click(->
 	.success(->
 		console.log 'success!'
 	)
-	.error(->
-		console.log 'could *not* destroy stopwatch #' + stopwatchId
-	)
 )
