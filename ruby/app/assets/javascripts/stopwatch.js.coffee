@@ -7,16 +7,6 @@ $ -> init()
 init = ->
 	repopulateStopwatches()
 
-# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
-$('.destroy-stopwatch-button').click(->
-	$.post('/stopwatch/destroy/' + getStopwatchId(this))
-)
-
-$('.create-stopwatch-button').click(->
-	$.post '/stopwatch/create'
-	repopulateStopwatches() # TODO Consider only populating the created stopwatch (in a DRY manner)
-)
-
 repopulateStopwatches = ->
 	# Design decision per: http://stackoverflow.com/q/890004/770170
 	$.getJSON('/stopwatch', (json) ->
@@ -44,10 +34,27 @@ repopulateStopwatches = ->
 					'</div>' +
 				'</div>'
 			)
+		
 		$time = $('.time')
 		$time.text(constituents(Number($time.text())))
+		
+		attachEventHandlers()
 	)
 	# Any code down here will probably be called *before* the Ajax call has completed!
+
+attachEventHandlers = ->
+	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
+	$('.destroy-stopwatch-button').click( ->
+		stopwatchId = getStopwatchId this
+		$.post('/stopwatch/destroy/' + stopwatchId, ->
+			$('.stopwatch-' + stopwatchId).remove()
+		)
+	)
+
+	$('.create-stopwatch-button').click(->
+		$.post '/stopwatch/create'
+		repopulateStopwatches() # TODO Only populate the created stopwatch (in a DRY manner) (for performance and so it can be highlighted for a few seconds)
+	)
 
 constituents = (milliseconds_overflowing) ->
 	milliseconds = milliseconds_overflowing % 1000
