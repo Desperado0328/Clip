@@ -10,10 +10,9 @@ class StopwatchController < ApplicationController
 	# Modified from: http://stackoverflow.com/a/2729454/770170
 	def flash_to_headers
 		return unless request.xhr?
-		response.headers['X-Flash-Notice'] = flash[:notice] # TODO unless flash[:notice].blank?
-		response.headers['X-Flash-Error'] = flash[:error] # TODO unless flash[:error].blank?
-		
-		flash.discard # don't want the flash to appear when you reload page
+		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
+		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
+		flash.discard # The flash shouldn't appear when the page is reloaded
 	end
 	
 	def index

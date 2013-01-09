@@ -36,12 +36,5 @@ getStopwatchId = (_this) ->
 
 # While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
 $('.destroy-stopwatch-button').click(->
-	stopwatchId = getStopwatchId(this)
-	
-	$.post("/stopwatch/destroy/" + stopwatchId, ->
-		console.log 'destroying stopwatch #' + stopwatchId + '...'
-	)
-	.success(->
-		console.log 'success!'
-	)
+	$.post("/stopwatch/destroy/" + getStopwatchId(this))
 )
