@@ -1,6 +1,26 @@
+# On January 9, 2013, because of a security vulnerability described at:
+# https://groups.google.com/forum/#!topic/rubyonrails-security/61bkgvnSGTQ/discussion,
+# I updated the following gem version per http://stackoverflow.com/a/5159298.
+# I found the latest version numbers by visiting rubygems.org. At first,
+# 'bundle install' (or even 'bundle update', which installs from scratch) didn't
+# work because 'make' doesn't come installed on Windows, but I figured out that
+# the Ruby Development Kit (DevKit) fixes this
+# (http://rubyinstaller.org/downloads/). I thought I had already correctly
+# downloaded and installed this, but per http://stackoverflow.com/a/5571482 and
+# step 4 ("Run Installation Scripts") of
+# https://github.com/oneclick/rubyinstaller/wiki/Development-Kit, I opened the
+# command prompt and navigated to the directory I had already extracted the
+# DevKit zip file to and ran 'ruby dk.rb install' (without the '--force'), and
+# 'bundle update' worked.
+#     gem 'rails', '3.2.8' --became--> gem 'rails', '3.2.11'
+#     gem 'sass-rails',   '~> 3.2.3' --became--> gem 'sass-rails',   '~> 3.2.5'
+#     gem 'coffee-rails', '~> 3.2.1' --became--> gem 'coffee-rails', '~> 3.2.2'
+#     gem 'uglifier', '>= 1.0.3' --became--> gem 'uglifier', '>= 1.3.0'
+# I left the commented-out gem versions in this file alone.
+
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -11,13 +31,13 @@ gem 'sqlite3'
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  gem 'sass-rails',   '~> 3.2.3'
-  gem 'coffee-rails', '~> 3.2.1'
+  gem 'sass-rails',   '~> 3.2.5'
+  gem 'coffee-rails', '~> 3.2.2'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
   # gem 'therubyracer', :platforms => :ruby
 
-  gem 'uglifier', '>= 1.0.3'
+  gem 'uglifier', '>= 1.3.0'
 end
 
 gem 'jquery-rails'
