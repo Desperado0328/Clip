@@ -5,7 +5,7 @@
 $ -> init()
 
 init = ->
-	$('.time').text(constituents(Number($('.time').text())))
+	repopulateStopwatches()
 
 # While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
 $('.destroy-stopwatch-button').click(->
@@ -14,11 +14,40 @@ $('.destroy-stopwatch-button').click(->
 
 $('.create-stopwatch-button').click(->
 	$.post '/stopwatch/create'
-	location.reload() # TODO Call an Ajax-y refresh instead
+	repopulateStopwatches() # TODO Consider only populating the created stopwatch (in a DRY manner)
 )
 
-getStopwatches = ->
-	$.get '/stopwatch/all'
+repopulateStopwatches = ->
+	# Design decision per: http://stackoverflow.com/q/890004/770170
+	$.getJSON('/stopwatch', (json) ->
+		$stopwatches = $('.stopwatches')
+		$stopwatches.empty()
+		for stopwatch in json
+			$stopwatches.append(
+				'<div class="stopwatch stopwatch-' + stopwatch.id + '">' +
+					'Lap: <span class="time lap-time lap-time-' + stopwatch.id + '">' + stopwatch.lap_total_at_last_pause + '</span>' +
+					'<button class="destroy-stopwatch-button close-button">X</button>' +
+					'<br />' +
+					'<span class="time time-' + stopwatch.id + '">' + stopwatch.total_at_last_pause + '</span>' +
+					'<br />' +
+					'<button class="pause-button">Start</button>' +
+					'<button class="lap-button">Lap</button>' +
+					'<div class="laps">' +
+						'<ol>' +
+							'<li class="lap">Lap 3: 01:23' +
+							'<li class="lap">Lap 2: 01:23' +
+							'<li class="lap">Lap 1: 01:23' +
+							# '<% stopwatch.laps.each do |lap| %>' +
+							# '<li class="lap">Lap 4: 99:99' +
+							# '<% end %>' +
+						'</ol>' +
+					'</div>' +
+				'</div>'
+			)
+		$time = $('.time')
+		$time.text(constituents(Number($time.text())))
+	)
+	# Any code down here will probably be called *before* the Ajax call has completed!
 
 constituents = (milliseconds_overflowing) ->
 	milliseconds = milliseconds_overflowing % 1000

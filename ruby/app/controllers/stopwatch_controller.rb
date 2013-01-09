@@ -17,6 +17,11 @@ class StopwatchController < ApplicationController
 	
 	def index
 		@stopwatches = Stopwatch.all
+		
+		respond_to do |format|
+			format.html # index.html.erb
+			format.json { render json: @stopwatches }
+		end
 	end
 	
 	# iPhone stopwatch operation (but don't follow the article's advice):

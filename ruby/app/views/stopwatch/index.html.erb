@@ -7,24 +7,5 @@
 	<button class="create-stopwatch-button">New stopwatch</button>
 </div>
 
-<% @stopwatches.each do |stopwatch| %>
-	<div class="stopwatch stopwatch-<%= stopwatch.id %>">
-		Lap: <span class="time lap-time lap-time-<%= stopwatch.id %>"><%= stopwatch.lap_total_at_last_pause %></span>
-		<button class="destroy-stopwatch-button close-button">X</button>
-		<br />
-		<span class="time time-<%= stopwatch.id %>"><%= stopwatch.total_at_last_pause %></span>
-		<br />
-		<button class="pause-button">Start</button>
-		<button class="lap-button">Lap</button>
-		<div class="laps">
-			<ol>
-				<li class="lap">Lap 3: 01:23
-				<li class="lap">Lap 2: 01:23
-				<li class="lap">Lap 1: 01:23
-				<% stopwatch.laps.each do |lap| %>
-					<li class="lap">Lap 4: 99:99
-				<% end %>
-			</ol>
-		</div>
-	</div>
-<% end %>
+<div class="stopwatches">
+</div>
