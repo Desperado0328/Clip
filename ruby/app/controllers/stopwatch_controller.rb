@@ -12,7 +12,7 @@ class StopwatchController < ApplicationController
 		return unless request.xhr?
 		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
 		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
-		# flash.discard # The flash shouldn't appear when the page is reloaded # Commented out because it was resetting the response headers somehow
+		# flash.discard # The flash shouldn't appear when the page is reloaded # HACK? Commented out because it was resetting the response headers somehow
 	end
 	
 	def index

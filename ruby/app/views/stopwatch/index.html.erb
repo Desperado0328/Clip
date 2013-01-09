@@ -3,9 +3,9 @@
 <h1>Stopwatch</h1>
 <p>Start a stopwatch in one window and see it running in another.</p>
 
-<form name="create-stopwatch" action="/stopwatch/create" method="post">
-	<input type="submit" value="New stopwatch">
-</form>
+<div>
+	<button class="create-stopwatch-button">New stopwatch</button>
+</div>
 
 <% @stopwatches.each do |stopwatch| %>
 	<div class="stopwatch stopwatch-<%= stopwatch.id %>">

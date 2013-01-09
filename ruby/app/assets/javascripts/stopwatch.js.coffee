@@ -36,5 +36,10 @@ getStopwatchId = (_this) ->
 
 # While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
 $('.destroy-stopwatch-button').click(->
-	$.post("/stopwatch/destroy/" + getStopwatchId(this))
+	$.post('/stopwatch/destroy/' + getStopwatchId(this))
+)
+
+$('.create-stopwatch-button').click(->
+	$.post '/stopwatch/create'
+	location.reload() # TODO Call an Ajax-y refresh instead
 )
