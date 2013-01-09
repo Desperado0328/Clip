@@ -1,10 +1,12 @@
 class StopwatchController < ApplicationController
 	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :resume, :lapss]
 	after_filter :flash_to_headers
+	after_filter :redirect_ajax, :only => [:create, :destroy, :get_time, :get_lap_time, :lapss]
 	
 	def init_state_change
 		@stopwatch = Stopwatch.find(params[:id])
 		@now = Time.now # Please don't inline this, to ensure consistent values
+		@mills_in_sec = 1000
 	end
 	
 	# Modified from: http://stackoverflow.com/a/2729454/770170
@@ -13,6 +15,10 @@ class StopwatchController < ApplicationController
 		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
 		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
 		# flash.discard # The flash shouldn't appear when the page is reloaded # HACK? Commented out because it was resetting the response headers somehow
+	end
+	
+	def redirect_ajax
+		redirect_to stopwatch_path
 	end
 	
 	def index
@@ -47,7 +53,6 @@ class StopwatchController < ApplicationController
 		else
 			flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
 		end
-		redirect_to stopwatch_path
 	end
 	
 	def destroy
@@ -56,7 +61,6 @@ class StopwatchController < ApplicationController
 		else
 			flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
 		end
-		redirect_to stopwatch_path
 	end
 	
 	def get_time
@@ -64,7 +68,7 @@ class StopwatchController < ApplicationController
 			if @stopwatch.is_paused
 				return @stopwatch.total_at_last_pause
 			else
-				return @stopwatch.total_at_last_pause + (@now - @stopwatch.datetime_at_last_resume)
+				return @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
 			end
 		end
 	end
@@ -74,22 +78,28 @@ class StopwatchController < ApplicationController
 			if @stopwatch.is_paused
 				return @stopwatch.lap_total_at_last_pause
 			else
-				return @stopwatch.lap_total_at_last_pause + (@now - @stopwatch.lap_datetime_at_last_resume)
+				return @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
 			end
 		end
 	end
 	
 	def pause
 		ActiveRecord::Base.transaction do
-			# TODO Assuming Time.now - Time.past is in milliseconds
-			milliseconds = @stopwatch.total_at_last_pause + (@now - @stopwatch.datetime_at_last_resume)
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + (@now - @stopwatch.lap_datetime_at_last_resume)
+			milliseconds = @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
+			lap_milliseconds = @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
 			
 			@stopwatch.update_attributes(
 				:total_at_last_pause => milliseconds,
 				:lap_total_at_last_pause => lap_milliseconds,
 				:is_paused => true
 			)
+		end
+		
+		respond_to do |format|
+			format.json { render json: @stopwatch }
+			# Modified from: http://stackoverflow.com/a/4582989/770170
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
 		end
 	end
 	
@@ -101,12 +111,18 @@ class StopwatchController < ApplicationController
 				:is_paused => false
 			)
 		end
+		
+		respond_to do |format|
+			format.json { render json: @stopwatch }
+			# Modified from: http://stackoverflow.com/a/4582989/770170
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+		end
 	end
 	
 	def lapss # Temporarily renamed due to symbol name conflicts with commented-out code in #index
 		ActiveRecord::Base.transaction do
-			# TODO Assuming Time.now - Time.past is in milliseconds
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + (@now - @stopwatch.lap_datetime_at_last_resume)
+			lap_milliseconds = @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
 			Lap.create( :total => lap_milliseconds )
 			@stopwatch.update_attributes(
 				:lap_total_at_last_pause => 0,

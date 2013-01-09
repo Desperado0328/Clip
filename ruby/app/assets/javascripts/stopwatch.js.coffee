@@ -5,7 +5,12 @@
 $ -> init()
 
 init = ->
-	repopulateStopwatches()
+	$('.create-stopwatch-button').click(->
+		$.post '/stopwatch/create'
+		repopulateStopwatches() # TODO Only populate the created stopwatch (in a DRY manner) (for performance and so it can be highlighted for a few seconds)
+	)
+	
+	repopulateStopwatches() # Ajax! Any code after this line had better not depend on it
 
 repopulateStopwatches = ->
 	# Design decision per: http://stackoverflow.com/q/890004/770170
@@ -14,33 +19,38 @@ repopulateStopwatches = ->
 		$stopwatches.empty()
 		for stopwatch in json
 			$stopwatches.append(
-				'<div class="stopwatch stopwatch-' + stopwatch.id + '">' +
-					'Lap: <span class="time lap-time lap-time-' + stopwatch.id + '">' + stopwatch.lap_total_at_last_pause + '</span>' +
-					'<button class="destroy-stopwatch-button close-button">X</button>' +
-					'<br />' +
-					'<span class="time time-' + stopwatch.id + '">' + stopwatch.total_at_last_pause + '</span>' +
-					'<br />' +
-					'<button class="pause-button">Start</button>' +
-					'<button class="lap-button">Lap</button>' +
-					'<div class="laps">' +
-						'<ol>' +
-							'<li class="lap">Lap 3: 01:23' +
-							'<li class="lap">Lap 2: 01:23' +
-							'<li class="lap">Lap 1: 01:23' +
-							# '<% stopwatch.laps.each do |lap| %>' +
-							# '<li class="lap">Lap 4: 99:99' +
-							# '<% end %>' +
-						'</ol>' +
-					'</div>' +
+				'<div class="stopwatch stopwatch-' + stopwatch.id + '"></div>'
+			)
+			$stopwatch = $('.stopwatch-' + stopwatch.id)
+			$stopwatch.append(
+				'Lap: <span class="time lap-time lap-time-' + stopwatch.id + '">' + constituents(stopwatch.lap_total_at_last_pause) + '</span>' +
+				'<button class="destroy-stopwatch-button close-button">X</button>' +
+				'<br />' +
+				'<span class="time main-time time-' + stopwatch.id + '">' + constituents(stopwatch.total_at_last_pause) + '</span>' +
+				'<br />' +
+				'<button class="' +
+				(if stopwatch.is_paused then 'resume' else 'pause') + '-button">' +
+				(if stopwatch.is_paused then 'Resume' else 'Pause') + '</button>' +
+				'<button class="lap-button"' +
+				(if stopwatch.is_paused then ' disabled') + '>Lap</button>' +
+				'<div class="laps">' +
+					'<ol>' +
+						'<li class="lap">Lap 3: 01:23' +
+						'<li class="lap">Lap 2: 01:23' +
+						'<li class="lap">Lap 1: 01:23' +
+						# '<% stopwatch.laps.each do |lap| %>' +
+						# '<li class="lap">Lap 4: 99:99' +
+						# '<% end %>' +
+					'</ol>' +
 				'</div>'
 			)
-		
-		$time = $('.time')
-		$time.text(constituents(Number($time.text())))
+			$stopwatch.data('json', stopwatch)
 		
 		attachEventHandlers()
+		startTimer()
 	)
-	# Any code down here will probably be called *before* the Ajax call has completed!
+	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
+	# completed, and cannot depend on it being completed.
 
 attachEventHandlers = ->
 	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
@@ -50,13 +60,31 @@ attachEventHandlers = ->
 			$('.stopwatch-' + stopwatchId).remove()
 		)
 	)
-
-	$('.create-stopwatch-button').click(->
-		$.post '/stopwatch/create'
-		repopulateStopwatches() # TODO Only populate the created stopwatch (in a DRY manner) (for performance and so it can be highlighted for a few seconds)
+	
+	$('.resume-button').click( ->
+		stopwatchId = getStopwatchId this
+		$.post('stopwatch/resume/' + stopwatchId, (json) =>
+			console.log json
+			$(this)
+				.removeClass('resume-button')
+				.addClass('pause-button')
+				.text('Pause')
+		, 'json')
+	)
+	
+	$('.pause-button').click( ->
+		stopwatchId = getStopwatchId this
+		$.post('stopwatch/pause/' + stopwatchId, (json) =>
+			console.log json
+			$(this)
+				.removeClass('pause-button')
+				.addClass('resume-button')
+				.text('Resume')
+		, 'json')
 	)
 
 constituents = (milliseconds_overflowing) ->
+	milliseconds_overflowing = Number milliseconds_overflowing
 	milliseconds = milliseconds_overflowing % 1000
 	seconds_overflowing = Math.floor(milliseconds_overflowing / 1000)
 	seconds = seconds_overflowing % 60
@@ -82,3 +110,15 @@ getStopwatchId = (_this) ->
 			stopwatchId = klass.substring('stopwatch-'.length) # Modified from: http://stackoverflow.com/a/4126795/770170
 	)
 	stopwatchId
+
+startTimer = ->
+	$stopwatches = $('.stopwatch')
+	timer = window.setInterval( ->
+		$stopwatches.each((index) ->
+			$this = $(this)
+			json = $this.data('json')
+			unless json.is_paused
+				newTotal = Math.floor(json.total_at_last_pause + (new Date() - new Date(json.datetime_at_last_resume)))
+				$this.children('.main-time').text(constituents(newTotal))
+		)
+	, 1000)
