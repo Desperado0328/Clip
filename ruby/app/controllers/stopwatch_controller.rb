@@ -1,5 +1,5 @@
 class StopwatchController < ApplicationController
-	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :resume, :lap]
+	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :resume, :lapss]
 	after_filter :flash_to_headers
 	
 	def init_state_change
@@ -17,10 +17,14 @@ class StopwatchController < ApplicationController
 	
 	def index
 		@stopwatches = Stopwatch.all
+		# @laps = Lap.all # Goes with commented-out code below
 		
 		respond_to do |format|
 			format.html # index.html.erb
 			format.json { render json: @stopwatches }
+			# Modified from: http://stackoverflow.com/a/4582989/770170
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
 		end
 	end
 	
@@ -99,7 +103,7 @@ class StopwatchController < ApplicationController
 		end
 	end
 	
-	def lap
+	def lapss # Temporarily renamed due to symbol name conflicts with commented-out code in #index
 		ActiveRecord::Base.transaction do
 			# TODO Assuming Time.now - Time.past is in milliseconds
 			lap_milliseconds = @stopwatch.lap_total_at_last_pause + (@now - @stopwatch.lap_datetime_at_last_resume)
