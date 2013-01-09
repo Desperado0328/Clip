@@ -114,11 +114,17 @@ getStopwatchId = (_this) ->
 startTimer = ->
 	$stopwatches = $('.stopwatch')
 	timer = window.setInterval( ->
+		now = new Date()
 		$stopwatches.each((index) ->
 			$this = $(this)
 			json = $this.data('json')
 			unless json.is_paused
-				newTotal = Math.floor(json.total_at_last_pause + (new Date() - new Date(json.datetime_at_last_resume)))
-				$this.children('.main-time').text(constituents(newTotal))
+				time = json.total_at_last_pause + dateDiff(now, new Date(json.datetime_at_last_resume))
+				lapTime = json.lap_total_at_last_pause + dateDiff(now, new Date(json.lap_datetime_at_last_resume))
+				$this.children('.main-time').text(constituents(time))
+				$this.children('.lap-time').text(constituents(lapTime))
 		)
 	, 1000)
+
+dateDiff = (present, past) ->
+	Math.floor(present - past)
