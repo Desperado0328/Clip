@@ -17,13 +17,17 @@
 	padding: 0.5%;
 }
 
-.notice {
+.flash-notice {
 	@extend .flash;
 	background-color: $secondary-b;
 }
-.error {
+.flash-error {
 	@extend .flash;
 	background-color: $complementary;
+}
+
+.hidden {
+	display: none;
 }
 
 .close-button {

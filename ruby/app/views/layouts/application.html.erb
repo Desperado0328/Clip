@@ -26,7 +26,14 @@
 	<div class="clear-both"></div>
 </nav>
 
-<div class="flash-container"></div>
+<div class="flashes">
+	<% ['notice', 'error'].each do |type| %>
+		<div class="flash-<%= type %> hidden">
+			<span class="flash-message-<%= type %>"></span>
+			<button type="button" class="close-button">X</button>
+		</div>
+	<% end %>
+</div>
 
 <%= yield %>
 

@@ -16,9 +16,6 @@ $(document).ajaxComplete((event, request) ->
 	
 	for key, value of flash
 		if value
-			$('.flash-container').append(
-				'<div class="flash ' + key + '">' + value +
-					'<button type="button" class="close-button">X</button>' + 
-				'</div>'
-			)
+			$('.flash-message-' + key).html(value)
+			$('.flash-' + key).show()
 )
