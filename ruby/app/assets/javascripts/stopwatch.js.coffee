@@ -7,6 +7,19 @@ $ -> init()
 init = ->
 	$('.time').text(constituents(Number($('.time').text())))
 
+# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
+$('.destroy-stopwatch-button').click(->
+	$.post('/stopwatch/destroy/' + getStopwatchId(this))
+)
+
+$('.create-stopwatch-button').click(->
+	$.post '/stopwatch/create'
+	location.reload() # TODO Call an Ajax-y refresh instead
+)
+
+getStopwatches = ->
+	$.get '/stopwatch/all'
+
 constituents = (milliseconds_overflowing) ->
 	milliseconds = milliseconds_overflowing % 1000
 	seconds_overflowing = Math.floor(milliseconds_overflowing / 1000)
@@ -33,13 +46,3 @@ getStopwatchId = (_this) ->
 			stopwatchId = klass.substring('stopwatch-'.length) # Modified from: http://stackoverflow.com/a/4126795/770170
 	)
 	stopwatchId
-
-# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
-$('.destroy-stopwatch-button').click(->
-	$.post('/stopwatch/destroy/' + getStopwatchId(this))
-)
-
-$('.create-stopwatch-button').click(->
-	$.post '/stopwatch/create'
-	location.reload() # TODO Call an Ajax-y refresh instead
-)

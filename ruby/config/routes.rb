@@ -5,6 +5,7 @@ Clip::Application.routes.draw do
 	match '/stopwatch' => 'stopwatch#index'
 	post '/stopwatch/create' => 'stopwatch#create'
 	post '/stopwatch/destroy/:id' => 'stopwatch#destroy'
+	get '/stopwatch/all' => 'stopwatch#index'
 	
   # The priority is based upon order of creation:
   # first created -> highest priority.
