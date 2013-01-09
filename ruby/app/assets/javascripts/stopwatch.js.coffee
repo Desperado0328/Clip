@@ -21,14 +21,15 @@ repopulateStopwatches = ->
 			$stopwatches.append(
 				'<div class="stopwatch stopwatch-' + stopwatch.id + '"></div>'
 			)
-			$stopwatch = $('.stopwatch-' + stopwatch.id)
+			$stopwatch = $('.stopwatch-' + stopwatch.id) # The object that was just appended
 			$stopwatch.append(
 				'Lap: <span class="time lap-time lap-time-' + stopwatch.id + '">' + constituents(stopwatch.lap_total_at_last_pause) + '</span>' +
-				'<button class="destroy-stopwatch-button close-button">X</button>' +
+				'<button class="destroy-stopwatch-button">X</button>' +
 				'<br />' +
 				'<span class="time main-time time-' + stopwatch.id + '">' + constituents(stopwatch.total_at_last_pause) + '</span>' +
 				'<br />' +
 				'<button class="' +
+				# Modified from: http://stackoverflow.com/a/10146123/770170
 				(if stopwatch.is_paused then 'resume' else 'pause') + '-button">' +
 				(if stopwatch.is_paused then 'Resume' else 'Pause') + '</button>' +
 				'<button class="lap-button"' +
@@ -64,7 +65,6 @@ attachEventHandlers = ->
 	$('.resume-button').click( ->
 		stopwatchId = getStopwatchId this
 		$.post('stopwatch/resume/' + stopwatchId, (json) =>
-			console.log json
 			$(this)
 				.removeClass('resume-button')
 				.addClass('pause-button')
@@ -75,7 +75,6 @@ attachEventHandlers = ->
 	$('.pause-button').click( ->
 		stopwatchId = getStopwatchId this
 		$.post('stopwatch/pause/' + stopwatchId, (json) =>
-			console.log json
 			$(this)
 				.removeClass('pause-button')
 				.addClass('resume-button')
@@ -112,9 +111,9 @@ getStopwatchId = (_this) ->
 	stopwatchId
 
 startTimer = ->
-	$stopwatches = $('.stopwatch')
 	timer = window.setInterval( ->
 		now = new Date()
+		$stopwatches = $('.stopwatch')
 		$stopwatches.each((index) ->
 			$this = $(this)
 			json = $this.data('json')
