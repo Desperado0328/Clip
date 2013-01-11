@@ -2,7 +2,7 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-TIME_STEP = 100 # milliseconds # TODO Global
+TIME_STEP = 10 # milliseconds # TODO Global
 
 $ -> init()
 
@@ -134,4 +134,4 @@ startSystemClock = ->
 				$this.children('.time').text(constituents(newTime))
 				$this.children('.lap-time').text(constituents(newLapTime))
 		)
-	, 1000 / TIME_STEP) # Convert milliseconds to seconds
+	, TIME_STEP)
