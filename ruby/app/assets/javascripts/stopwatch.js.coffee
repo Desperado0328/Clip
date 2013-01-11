@@ -14,10 +14,10 @@ init = ->
 
 repopulateStopwatches = ->
 	# Design decision per: http://stackoverflow.com/q/890004/770170
-	$.getJSON('/stopwatch', (json) ->
+	$.getJSON('/stopwatch', (response) ->
 		$stopwatches = $('.stopwatches')
 		$stopwatches.empty()
-		for stopwatch in json
+		for stopwatch in response
 			$stopwatches.append(
 				'<div class="stopwatch stopwatch-' + stopwatch.id + '"></div>'
 			)
@@ -43,10 +43,10 @@ repopulateStopwatches = ->
 					'</ol>' +
 				'</div>'
 			)
-			$stopwatch.data 'json', stopwatch
+			$stopwatch.data 'response', stopwatch
 			attachEventHandlers $stopwatch
 		
-		startTimer()
+		startSystemClock()
 	)
 	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
 	# completed and cannot depend on it being completed.
@@ -54,19 +54,21 @@ repopulateStopwatches = ->
 attachEventHandlers = ($stopwatch) ->
 	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
 	$stopwatch.children('.destroy-stopwatch-button').click( ->
-		$.post('/stopwatch/destroy/' + $stopwatch.data('json').id, ->
+		$.post('/stopwatch/destroy/' + $stopwatch.data('response').id, ->
 			$stopwatch.remove()
 		)
 	)
 	
 	$stopwatch.children('.pause-button').click( ->
-		stopwatchId = $stopwatch.data('json').id
-		if $stopwatch.data('json').is_paused
-			$.post('stopwatch/resume/' + stopwatchId, (json) =>
+		stopwatchId = $stopwatch.data('response').id
+		if $stopwatch.data('response').is_paused
+			$.post('stopwatch/resume/' + stopwatchId, (response) =>
+				$stopwatch.data('response', response)
 				$(this).text('Pause')
 			, 'json')
 		else
-			$.post('stopwatch/pause/' + stopwatchId, (json) =>
+			$.post('stopwatch/pause/' + stopwatchId, (response) =>
+				$stopwatch.data('response', response)
 				$(this).text('Resume')
 			, 'json')
 	)
@@ -89,25 +91,15 @@ pad = (unpadded, length, padWith='0') ->
 		retval = padWith + retval
 	retval
 
-getStopwatchId = (_this) ->
-	stopwatchId = -1
-	classList = $(_this).parent().attr('class').split(/\s+/)
-	# Modified from: http://stackoverflow.com/a/1227309/770170
-	$.each(classList, (index, klass) ->
-		if klass.indexOf('stopwatch-') != -1 # String.contains(), per: http://stackoverflow.com/a/1789952/770170
-			stopwatchId = klass.substring('stopwatch-'.length) # Modified from: http://stackoverflow.com/a/4126795/770170
-	)
-	stopwatchId
-
-startTimer = ->
-	timer = window.setInterval( ->
+startSystemClock = ->
+	clock = window.setInterval( ->
 		now = new Date()
-		$('.stopwatch').each((index) ->
+		$('.stopwatch').each( (index) ->
 			$this = $(this)
-			json = $this.data('json')
-			unless json.is_paused
-				time = json.total_at_last_pause + dateDiff(now, new Date(json.datetime_at_last_resume))
-				lapTime = json.lap_total_at_last_pause + dateDiff(now, new Date(json.lap_datetime_at_last_resume))
+			response = $this.data('response')
+			unless response.is_paused
+				time = response.total_at_last_pause + dateDiff(now, new Date(response.datetime_at_last_resume))
+				lapTime = response.lap_total_at_last_pause + dateDiff(now, new Date(response.lap_datetime_at_last_resume))
 				$this.children('.main-time').text(constituents(time))
 				$this.children('.lap-time').text(constituents(lapTime))
 		)
