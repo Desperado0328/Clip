@@ -64,14 +64,23 @@ attachEventHandlers = ($stopwatch) ->
 	
 	$stopwatch.children('.pause-button').click( ->
 		stopwatchId = $stopwatch.data('response').id
+		# TODO duplicate code
 		if $stopwatch.data('response').is_paused
 			$.post('stopwatch/unpause/' + stopwatchId, (response) =>
 				$stopwatch.data('response', response)
+				$stopwatch.data 'time', response.total_at_last_pause
+				$stopwatch.data 'lapTime', response.lap_total_at_last_pause
+				$stopwatch.children('.time').text(constituents(response.total_at_last_pause))
+				$stopwatch.children('.lap-time').text(constituents(response.lap_total_at_last_pause))
 				$(this).text('Stop')
 			, 'json')
 		else
 			$.post('stopwatch/pause/' + stopwatchId, (response) =>
 				$stopwatch.data('response', response)
+				$stopwatch.data 'time', response.total_at_last_pause
+				$stopwatch.data 'lapTime', response.lap_total_at_last_pause
+				$stopwatch.children('.time').text(constituents(response.total_at_last_pause))
+				$stopwatch.children('.lap-time').text(constituents(response.lap_total_at_last_pause))
 				$(this).text('Start')
 			, 'json')
 	)
