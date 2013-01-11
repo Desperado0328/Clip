@@ -28,9 +28,7 @@ repopulateStopwatches = ->
 				'<br />' +
 				'<span class="time main-time time-' + stopwatch.id + '">' + constituents(stopwatch.total_at_last_pause) + '</span>' +
 				'<br />' +
-				'<button class="' +
-				# Modified from: http://stackoverflow.com/a/10146123/770170
-				(if stopwatch.is_paused then 'resume' else 'pause') + '-button">' +
+				'<button class="pause-button">' +
 				(if stopwatch.is_paused then 'Resume' else 'Pause') + '</button>' +
 				'<button class="lap-button"' +
 				(if stopwatch.is_paused then ' disabled') + '>Lap</button>' +
@@ -45,41 +43,32 @@ repopulateStopwatches = ->
 					'</ol>' +
 				'</div>'
 			)
-			$stopwatch.data('json', stopwatch)
+			$stopwatch.data 'json', stopwatch
+			attachEventHandlers $stopwatch
 		
-		attachEventHandlers()
 		startTimer()
 	)
 	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
-	# completed, and cannot depend on it being completed.
+	# completed and cannot depend on it being completed.
 
-attachEventHandlers = ->
+attachEventHandlers = ($stopwatch) ->
 	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
-	$('.destroy-stopwatch-button').click( ->
-		stopwatchId = getStopwatchId this
-		$.post('/stopwatch/destroy/' + stopwatchId, ->
-			$('.stopwatch-' + stopwatchId).remove()
+	$stopwatch.children('.destroy-stopwatch-button').click( ->
+		$.post('/stopwatch/destroy/' + $stopwatch.data('json').id, ->
+			$stopwatch.remove()
 		)
 	)
 	
-	$('.resume-button').click( ->
-		stopwatchId = getStopwatchId this
-		$.post('stopwatch/resume/' + stopwatchId, (json) =>
-			$(this)
-				.removeClass('resume-button')
-				.addClass('pause-button')
-				.text('Pause')
-		, 'json')
-	)
-	
-	$('.pause-button').click( ->
-		stopwatchId = getStopwatchId this
-		$.post('stopwatch/pause/' + stopwatchId, (json) =>
-			$(this)
-				.removeClass('pause-button')
-				.addClass('resume-button')
-				.text('Resume')
-		, 'json')
+	$stopwatch.children('.pause-button').click( ->
+		stopwatchId = $stopwatch.data('json').id
+		if $stopwatch.data('json').is_paused
+			$.post('stopwatch/resume/' + stopwatchId, (json) =>
+				$(this).text('Pause')
+			, 'json')
+		else
+			$.post('stopwatch/pause/' + stopwatchId, (json) =>
+				$(this).text('Resume')
+			, 'json')
 	)
 
 constituents = (milliseconds_overflowing) ->
@@ -113,8 +102,7 @@ getStopwatchId = (_this) ->
 startTimer = ->
 	timer = window.setInterval( ->
 		now = new Date()
-		$stopwatches = $('.stopwatch')
-		$stopwatches.each((index) ->
+		$('.stopwatch').each((index) ->
 			$this = $(this)
 			json = $this.data('json')
 			unless json.is_paused
