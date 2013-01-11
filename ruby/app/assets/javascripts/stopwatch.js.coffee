@@ -2,6 +2,8 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
+TIME_STEP = 100 # milliseconds # TODO Global
+
 $ -> init()
 
 init = ->
@@ -94,28 +96,42 @@ pad = (unpadded, length, padWith='0') ->
 		retval = padWith + retval
 	retval
 
+# TODO This doesn't work if a stopwatch was added or deleted outside the current window
 sync = ->
-	# TODO fetch the latest time value from the server
-	$('.stopwatch').data('time', 0)
-	$('.stopwatch').data('lap-time', 0)
-
-startSystemClock = ->
-	# Todo make this a simple counter, rather than creating new Dates every few milliseconds
-	clock = window.setInterval( ->
-		now = new Date()
-		$('.stopwatch').each( (index) ->
-			$this = $(this)
-			response = $this.data('response')
+	$.post('stopwatch', (response) ->
+		$('.stopwatch').each( (i, stopwatch) ->
+			$stopwatch = $(stopwatch)
+			$stopwatch.data('response', response[i])
 			
-			time = response.total_at_last_pause
-			lapTime = response.lap_total_at_last_pause
-			unless response.is_paused
-				time += dateDiff(now, new Date(response.datetime_at_last_resume))
-				lapTime += dateDiff(now, new Date(response.lap_datetime_at_last_resume))
-			$this.children('.time').text(constituents(time))
-			$this.children('.lap-time').text(constituents(lapTime))
+			# TODO Refactor to put the "new Date()" and dateDiff calls on the server
+			now = new Date()
+			time = response[i].total_at_last_pause
+			lapTime = response[i].lap_total_at_last_pause
+			unless response[i].is_paused
+				time += dateDiff(now, new Date(response[i].datetime_at_last_resume))
+				lapTime += dateDiff(now, new Date(response[i].lap_datetime_at_last_resume))
+			
+			$stopwatch.data 'time', time
+			$stopwatch.data 'lapTime', lapTime
 		)
-	, 10)
+	, 'json')
 
 dateDiff = (present, past) ->
 	Math.floor(present - past)
+
+startSystemClock = ->
+	clock = window.setInterval( ->
+		$('.stopwatch').each( ->
+			$this = $(this)
+			
+			unless $this.data('response').is_paused			
+				newTime = $this.data('time') + TIME_STEP
+				newLapTime = $this.data('lapTime') + TIME_STEP
+				
+				$this.data('time', newTime)
+				$this.data('lapTime', newLapTime)
+				
+				$this.children('.time').text(constituents(newTime))
+				$this.children('.lap-time').text(constituents(newLapTime))
+		)
+	, 1000 / TIME_STEP) # Convert milliseconds to seconds
