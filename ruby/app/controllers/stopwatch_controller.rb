@@ -1,5 +1,5 @@
 class StopwatchController < ApplicationController
-	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :resume, :lapss]
+	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :unpause, :lapss]
 	after_filter :flash_to_headers
 	
 	def init_state_change
@@ -84,6 +84,8 @@ class StopwatchController < ApplicationController
 	
 	def pause
 		ActiveRecord::Base.transaction do
+			break if @stopwatch.is_paused
+			
 			milliseconds = @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
 			lap_milliseconds = @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
 			
@@ -94,16 +96,13 @@ class StopwatchController < ApplicationController
 			)
 		end
 		
-		respond_to do |format|
-			format.json { render json: @stopwatch }
-			# Modified from: http://stackoverflow.com/a/4582989/770170
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-		end
+		respond_with_json
 	end
 	
-	def resume
+	def unpause
 		ActiveRecord::Base.transaction do
+			break unless @stopwatch.is_paused
+			
 			@stopwatch.update_attributes(
 				:datetime_at_last_resume => @now,
 				:lap_datetime_at_last_resume => @now,
@@ -111,12 +110,7 @@ class StopwatchController < ApplicationController
 			)
 		end
 		
-		respond_to do |format|
-			format.json { render json: @stopwatch }
-			# Modified from: http://stackoverflow.com/a/4582989/770170
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-		end
+		respond_with_json
 	end
 	
 	def lapss # Temporarily renamed due to symbol name conflicts with commented-out code in #index
@@ -129,5 +123,14 @@ class StopwatchController < ApplicationController
 			)
 		end
 		redirect_to stopwatch_path
+	end
+	
+	def respond_with_json
+		respond_to do |format|
+			format.json { render json: @stopwatch }
+			# Modified from: http://stackoverflow.com/a/4582989/770170
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+		end
 	end
 end

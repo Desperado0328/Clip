@@ -23,13 +23,13 @@ repopulateStopwatches = ->
 			)
 			$stopwatch = $('.stopwatch-' + stopwatch.id) # The object that was just appended
 			$stopwatch.append(
-				'Lap: <span class="time lap-time lap-time-' + stopwatch.id + '">' + constituents(stopwatch.lap_total_at_last_pause) + '</span>' +
+				'Lap: <span class="lap-time lap-time-' + stopwatch.id + ' clock">' + constituents(stopwatch.lap_total_at_last_pause) + '</span>' +
 				'<button class="destroy-stopwatch-button">X</button>' +
 				'<br />' +
-				'<span class="time main-time time-' + stopwatch.id + '">' + constituents(stopwatch.total_at_last_pause) + '</span>' +
+				'<span class="time time-' + stopwatch.id + ' clock">' + constituents(stopwatch.total_at_last_pause) + '</span>' +
 				'<br />' +
 				'<button class="pause-button">' +
-				(if stopwatch.is_paused then 'Resume' else 'Pause') + '</button>' +
+				(if stopwatch.is_paused then 'Start' else 'Stop') + '</button>' +
 				'<button class="lap-button"' +
 				(if stopwatch.is_paused then ' disabled') + '>Lap</button>' +
 				'<div class="laps">' +
@@ -46,6 +46,7 @@ repopulateStopwatches = ->
 			$stopwatch.data 'response', stopwatch
 			attachEventHandlers $stopwatch
 		
+		sync()
 		startSystemClock()
 	)
 	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
@@ -62,14 +63,14 @@ attachEventHandlers = ($stopwatch) ->
 	$stopwatch.children('.pause-button').click( ->
 		stopwatchId = $stopwatch.data('response').id
 		if $stopwatch.data('response').is_paused
-			$.post('stopwatch/resume/' + stopwatchId, (response) =>
+			$.post('stopwatch/unpause/' + stopwatchId, (response) =>
 				$stopwatch.data('response', response)
-				$(this).text('Pause')
+				$(this).text('Stop')
 			, 'json')
 		else
 			$.post('stopwatch/pause/' + stopwatchId, (response) =>
 				$stopwatch.data('response', response)
-				$(this).text('Resume')
+				$(this).text('Start')
 			, 'json')
 	)
 
@@ -83,7 +84,9 @@ constituents = (milliseconds_overflowing) ->
 	hours_overflowing = Math.floor(minutes_overflowing / 60)
 	hours = hours_overflowing # Let the hours overflow because there are no higher units.
 	
-	[pad(hours, 2), pad(minutes, 2), pad(seconds, 2)].join(':') + '.' + pad(milliseconds, 3)
+	milliseconds = Math.floor(milliseconds / 10) # Trim off the last digit
+	
+	[pad(hours, 2), pad(minutes, 2), pad(seconds, 2)].join(':') + '.' + pad(milliseconds, 2)
 	
 pad = (unpadded, length, padWith='0') ->
 	retval = unpadded + '' # Cast to string
@@ -91,19 +94,28 @@ pad = (unpadded, length, padWith='0') ->
 		retval = padWith + retval
 	retval
 
+sync = ->
+	# TODO fetch the latest time value from the server
+	$('.stopwatch').data('time', 0)
+	$('.stopwatch').data('lap-time', 0)
+
 startSystemClock = ->
+	# Todo make this a simple counter, rather than creating new Dates every few milliseconds
 	clock = window.setInterval( ->
 		now = new Date()
 		$('.stopwatch').each( (index) ->
 			$this = $(this)
 			response = $this.data('response')
+			
+			time = response.total_at_last_pause
+			lapTime = response.lap_total_at_last_pause
 			unless response.is_paused
-				time = response.total_at_last_pause + dateDiff(now, new Date(response.datetime_at_last_resume))
-				lapTime = response.lap_total_at_last_pause + dateDiff(now, new Date(response.lap_datetime_at_last_resume))
-				$this.children('.main-time').text(constituents(time))
-				$this.children('.lap-time').text(constituents(lapTime))
+				time += dateDiff(now, new Date(response.datetime_at_last_resume))
+				lapTime += dateDiff(now, new Date(response.lap_datetime_at_last_resume))
+			$this.children('.time').text(constituents(time))
+			$this.children('.lap-time').text(constituents(lapTime))
 		)
-	, 1000)
+	, 10)
 
 dateDiff = (present, past) ->
 	Math.floor(present - past)
