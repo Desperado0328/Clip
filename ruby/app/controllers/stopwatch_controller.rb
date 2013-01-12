@@ -1,20 +1,12 @@
 class StopwatchController < ApplicationController
+	# iPhone stopwatch operation (ignoring article's advice):
+	# http://www.leancrew.com/all-this/2009/07/iphone-stopwatch-ui-oddity/
+	
+	# Database transaction code modified from:
+	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
+	
 	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :unpause, :lapss]
 	after_filter :flash_to_headers
-	
-	def init_state_change
-		@stopwatch = Stopwatch.find(params[:id])
-		@now = Time.now # Please don't inline this, to ensure consistent values
-		@mills_in_sec = 1000
-	end
-	
-	# Modified from: http://stackoverflow.com/a/2729454/770170
-	def flash_to_headers
-		return unless request.xhr?
-		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
-		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
-		# flash.discard # The flash shouldn't appear when the page is reloaded # HACK? Commented out because it was resetting the response headers somehow
-	end
 	
 	def index
 		@stopwatches = Stopwatch.all
@@ -29,12 +21,6 @@ class StopwatchController < ApplicationController
 		end
 	end
 	
-	# iPhone stopwatch operation (but don't follow the article's advice):
-	# http://www.leancrew.com/all-this/2009/07/iphone-stopwatch-ui-oddity/
-	
-	# Database transaction code modified from:
-	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
-	
 	def create
 		@stopwatch = Stopwatch.new(
 			:is_paused => true,
@@ -48,6 +34,7 @@ class StopwatchController < ApplicationController
 		else
 			flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
 		end
+		
 		redirect_to stopwatch_path
 	end
 	
@@ -57,6 +44,7 @@ class StopwatchController < ApplicationController
 		else
 			flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
 		end
+		
 		redirect_to stopwatch_path
 	end
 	
@@ -68,6 +56,7 @@ class StopwatchController < ApplicationController
 				return @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
 			end
 		end
+		
 		redirect_to stopwatch_path
 	end
 	
@@ -79,6 +68,7 @@ class StopwatchController < ApplicationController
 				return @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
 			end
 		end
+		
 		redirect_to stopwatch_path
 	end
 	
@@ -122,7 +112,22 @@ class StopwatchController < ApplicationController
 				:lap_datetime_at_last_resume => @now
 			)
 		end
+		
 		redirect_to stopwatch_path
+	end
+	
+	def init_state_change
+		@stopwatch = Stopwatch.find(params[:id])
+		@now = Time.now # Please don't inline this, to ensure consistent values
+		@mills_in_sec = 1000
+	end
+	
+	# Modified from: http://stackoverflow.com/a/2729454/770170
+	def flash_to_headers
+		return unless request.xhr?
+		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
+		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
+		# flash.discard # The flash shouldn't appear when the page is reloaded # HACK? Commented out because it was resetting the response headers somehow
 	end
 	
 	def respond_with_json
