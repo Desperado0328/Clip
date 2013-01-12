@@ -20,39 +20,41 @@ repopulateStopwatches = ->
 		$stopwatches = $('.stopwatches')
 		$stopwatches.empty()
 		for stopwatchState in stopwatchStates
-			$stopwatches.append(
-				'<div class="stopwatch stopwatch-' + stopwatchState.id + '"></div>'
-			)
-			$stopwatch = $('.stopwatch-' + stopwatchState.id) # The object that was just appended
-			$stopwatch.append(
-				'Lap: <span class="lap-time lap-time-' + stopwatchState.id + ' clock">' + constituents(stopwatchState.lap_total_at_last_pause) + '</span>' +
-				'<button class="destroy-stopwatch-button">X</button>' +
-				'<br />' +
-				'<span class="time time-' + stopwatchState.id + ' clock">' + constituents(stopwatchState.total_at_last_pause) + '</span>' +
-				'<br />' +
-				'<button class="pause-button">' +
-				(if stopwatchState.is_paused then 'Start' else 'Stop') + '</button>' +
-				'<button class="lap-button"' +
-				(if stopwatchState.is_paused then ' disabled') + '>Lap</button>' +
-				'<div class="laps">' +
-					'<ol>' +
-						'<li class="lap">Lap 3: 01:23' +
-						'<li class="lap">Lap 2: 01:23' +
-						'<li class="lap">Lap 1: 01:23' +
-						# '<% stopwatchState.laps.each do |lap| %>' +
-						# '<li class="lap">Lap 4: 99:99' +
-						# '<% end %>' +
-					'</ol>' +
-				'</div>'
-			)
-			$stopwatch.data 'stopwatchState', stopwatchState
-			attachEventHandlers $stopwatch
-		
+			createNewStopwatch $stopwatches, stopwatchState
 		sync()
 		startSystemClock()
 	)
 	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
 	# completed and cannot depend on it being completed.
+
+createNewStopwatch = ($stopwatches, stopwatchState) ->
+	$stopwatches.append(
+		'<div class="stopwatch stopwatch-' + stopwatchState.id + '"></div>'
+	)
+	$stopwatch = $('.stopwatch-' + stopwatchState.id) # The object that was just appended
+	$stopwatch.append(
+		'Lap: <span class="lap-time lap-time-' + stopwatchState.id + ' clock">' + constituents(stopwatchState.lap_total_at_last_pause) + '</span>' +
+		'<button class="destroy-stopwatch-button">X</button>' +
+		'<br />' +
+		'<span class="time time-' + stopwatchState.id + ' clock">' + constituents(stopwatchState.total_at_last_pause) + '</span>' +
+		'<br />' +
+		'<button class="pause-button">' +
+		(if stopwatchState.is_paused then 'Start' else 'Stop') + '</button>' +
+		'<button class="lap-button"' +
+		(if stopwatchState.is_paused then ' disabled') + '>Lap</button>' +
+		'<div class="laps">' +
+			'<ol>' +
+				'<li class="lap">Lap 3: 01:23' +
+				'<li class="lap">Lap 2: 01:23' +
+				'<li class="lap">Lap 1: 01:23' +
+				# '<% stopwatchState.laps.each do |lap| %>' +
+				# '<li class="lap">Lap 4: 99:99' +
+				# '<% end %>' +
+			'</ol>' +
+		'</div>'
+	)
+	$stopwatch.data 'stopwatchState', stopwatchState
+	attachEventHandlers $stopwatch
 
 attachEventHandlers = ($stopwatch) ->
 	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
@@ -108,14 +110,14 @@ pad = (unpadded, length, padWith='0') ->
 # TODO This doesn't work if a stopwatch was added or deleted outside the current window
 sync = ->
 	$.post('stopwatch', (stopwatchStates) ->
-		# Determine which stopwatches need to be added or removed
-		domIds = ($(stopwatch).data('stopwatchState').id for stopwatch in $('.stopwatch'))
-		responseIds = (stopwatch.id for stopwatch in stopwatchStates) # Modified from: http://stackoverflow.com/a/7398529/770170
-		{ add: add, remove: remove } = diff(domIds, responseIds)
-		stopwatchStatesToAdd = (stopwatchState for stopwatchState in stopwatchStates when stopwatchState.id in add)
-		stopwatchStatesToRemove = (stopwatchState for stopwatchState in stopwatchStates when stopwatchState.id in remove)
-		addStates stopwatchStatesToAdd
-		removeStates stopwatchStatesToRemove
+		# Determine if any stopwatches were added or removed
+		oldStopwatchIds = ($(stopwatch).data('stopwatchState').id for stopwatch in $('.stopwatch'))
+		newStopwatchIds = (stopwatch.id for stopwatch in stopwatchStates)
+		{ added: addedIds, removed: removedIds } = diff oldStopwatchIds, newStopwatchIds
+		stopwatchStatesToAdd = (stopwatchState for stopwatchState in stopwatchStates when stopwatchState.id in addedIds)
+		# Add and/or remove from the DOM
+		createNewStopwatch($('.stopwatches'), state) for state in stopwatchStatesToAdd
+		$('.stopwatch-' + id).remove() for id in removedIds
 		
 		$('.stopwatch').each( (i, stopwatch) ->
 			$stopwatch = $(stopwatch)
@@ -135,25 +137,19 @@ sync = ->
 	, 'json')
 
 # Modified from: http://stackoverflow.com/a/8585449/770170
-# diff([1, 2, 3], [2, 3, 4]) results in { add: 4, remove: 1 }
-diff = (oldIds, newIds) ->
+# diff([1,2,3],[2,3,4]) results in {added:4,removed:1}
+diff = (oldArray, newArray) ->
 	# return
-	add:
-		newId for newId in newIds when newId not in oldIds
-	remove:
-		oldId for oldId in oldIds when oldId not in newIds
-
-addStates = (stopwatchStates) ->
-	console.log
-
-removeStates = (stopwatchStates) ->
-	console.log
+	added:
+		newItem for newItem in newArray when newItem not in oldArray
+	removed:
+		oldItem for oldItem in oldArray when oldItem not in newArray
 
 dateDiff = (present, past) ->
 	Math.floor(present - past)
 
 startSystemClock = ->
-	clock = window.setInterval( ->
+	counterClock = window.setInterval( ->
 		$('.stopwatch').each( ->
 			$this = $(this)
 			
@@ -168,3 +164,7 @@ startSystemClock = ->
 				$this.children('.lap-time').text(constituents(newLapTime))
 		)
 	, TIME_STEP)
+	
+	syncClock = window.setInterval( ->
+		sync()
+	, TIME_STEP * 1000)
