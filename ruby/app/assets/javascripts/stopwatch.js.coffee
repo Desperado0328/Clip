@@ -41,7 +41,7 @@ createNewStopwatch = ($stopwatches, state) ->
 		'<button class="pause-button">' +
 		(if state.is_paused then 'Start' else 'Stop') + '</button>' +
 		'<button class="lap-button"' +
-		(if state.is_paused then ' disabled') + '>Lap</button>' +
+		(if state.is_paused then ' disabled="disabled"' else '') + '>Lap</button>' +
 		'<div class="laps">' +
 			'<ol>' +
 				'<li class="lap">Lap 3: 01:23' +
@@ -75,6 +75,7 @@ attachEventHandlers = ($stopwatch) ->
 				$stopwatch.children('.time').text(constituents(state.total_at_last_pause))
 				$stopwatch.children('.lap-time').text(constituents(state.lap_total_at_last_pause))
 				$(this).text('Stop')
+				$stopwatch.children('.lap-button').removeAttr('disabled')
 			, 'json')
 		else
 			$.post('stopwatch/pause/' + stopwatchId, (state) =>
@@ -84,7 +85,12 @@ attachEventHandlers = ($stopwatch) ->
 				$stopwatch.children('.time').text(constituents(state.total_at_last_pause))
 				$stopwatch.children('.lap-time').text(constituents(state.lap_total_at_last_pause))
 				$(this).text('Start')
+				$stopwatch.children('.lap-button').attr('disabled', 'disabled')
 			, 'json')
+	)
+	
+	$stopwatch.children('.lap-button').click( ->
+		
 	)
 
 constituents = (milliseconds_overflowing) ->
