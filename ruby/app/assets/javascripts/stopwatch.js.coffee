@@ -93,6 +93,7 @@ attachEventHandlers = ($stopwatch) ->
 		stopwatchId = $stopwatch.data('state').id
 		$.post('stopwatch/lap/' + stopwatchId, (state) =>
 			$stopwatch.data('state', state)
+			$stopwatch.data 'lapTime', 0
 		, 'json')
 	)
 
@@ -116,34 +117,39 @@ pad = (unpadded, length, padWith='0') ->
 		retval = padWith + retval
 	retval
 
-# TODO This doesn't work if a stopwatch was added or deleted outside the current window
 sync = ->
 	$.post('stopwatch', (states) ->
-		# Determine if any stopwatches were added or removed
-		oldStopwatchIds = ($(stopwatch).data('state').id for stopwatch in $('.stopwatch'))
-		newStopwatchIds = (state.id for state in states)
-		{ added: addedIds, removed: removedIds } = diff oldStopwatchIds, newStopwatchIds
-		statesToAdd = (state for state in states when state.id in addedIds)
-		# Add and/or remove from the DOM
-		createNewStopwatch($('.stopwatches'), state) for state in statesToAdd
-		$('.stopwatch-' + id).remove() for id in removedIds
+		syncAll states
 		
 		$('.stopwatch').each( (i, stopwatch) ->
-			$stopwatch = $(stopwatch)
-			$stopwatch.data('state', states[i])
-			
-			# TODO Refactor to put the "new Date()" and dateDiff calls on the server
-			now = new Date()
-			time = states[i].total_at_last_pause
-			lapTime = states[i].lap_total_at_last_pause
-			unless states[i].is_paused
-				time += dateDiff(now, new Date(states[i].datetime_at_last_resume))
-				lapTime += dateDiff(now, new Date(states[i].lap_datetime_at_last_resume))
-			
-			$stopwatch.data 'time', time
-			$stopwatch.data 'lapTime', lapTime
+			syncOne states, i, $(stopwatch)
 		)
 	, 'json')
+
+syncAll = (states) ->
+	# Determine which (if any) stopwatches need to be added and/or removed
+	oldStopwatchIds = ($(stopwatch).data('state').id for stopwatch in $('.stopwatch'))
+	newStopwatchIds = (state.id for state in states)
+	{ added: addedIds, removed: removedIds } = diff oldStopwatchIds, newStopwatchIds
+	statesToAdd = (state for state in states when state.id in addedIds)
+	
+	# Add and/or remove them from the DOM
+	createNewStopwatch($('.stopwatches'), state) for state in statesToAdd
+	$('.stopwatch-' + id).remove() for id in removedIds
+
+syncOne = (states, i, $stopwatch) ->
+	$stopwatch.data('state', states[i])
+	
+	# TODO Refactor to put the "new Date()" and dateDiff calls on the server
+	now = new Date()
+	time = states[i].total_at_last_pause
+	lapTime = states[i].lap_total_at_last_pause
+	unless states[i].is_paused
+		time += dateDiff(now, new Date(states[i].datetime_at_last_resume))
+		lapTime += dateDiff(now, new Date(states[i].lap_datetime_at_last_resume))
+	
+	$stopwatch.data 'time', time
+	$stopwatch.data 'lapTime', lapTime
 
 # Modified from: http://stackoverflow.com/a/8585449/770170
 # diff([1,2,3],[2,3,4]) results in {added:4,removed:1}
