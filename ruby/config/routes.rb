@@ -7,6 +7,7 @@ Clip::Application.routes.draw do
 	post '/stopwatch/destroy/:id' => 'stopwatch#destroy'
 	post '/stopwatch/pause/:id' => 'stopwatch#pause'
 	post '/stopwatch/unpause/:id' => 'stopwatch#unpause'
+	post '/stopwatch/lap/:id' => 'stopwatch#lap'
 	
   # The priority is based upon order of creation:
   # first created -> highest priority.

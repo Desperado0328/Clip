@@ -1,11 +1,11 @@
-class StopwatchController < ApplicationController
+class StopwatchController < ApplicationController	
 	# iPhone stopwatch operation (ignoring article's advice):
 	# http://www.leancrew.com/all-this/2009/07/iphone-stopwatch-ui-oddity/
-	
+
 	# Database transaction code modified from:
 	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
-	
-	before_filter :init_state_change, :only => [:destroy, :get_time, :get_lap_time, :pause, :unpause, :lapss]
+
+	before_filter :init_state_change, :only => [:destroy, :pause, :unpause, :lap]
 	after_filter :flash_to_headers
 	
 	def index
@@ -48,36 +48,12 @@ class StopwatchController < ApplicationController
 		redirect_to stopwatch_path
 	end
 	
-	def get_time
-		ActiveRecord::Base.transaction do
-			if @stopwatch.is_paused
-				return @stopwatch.total_at_last_pause
-			else
-				return @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
-			end
-		end
-		
-		redirect_to stopwatch_path
-	end
-	
-	def get_lap_time
-		ActiveRecord::Base.transaction do
-			if @stopwatch.is_paused
-				return @stopwatch.lap_total_at_last_pause
-			else
-				return @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
-			end
-		end
-		
-		redirect_to stopwatch_path
-	end
-	
 	def pause
 		ActiveRecord::Base.transaction do
 			break if @stopwatch.is_paused
 			
-			milliseconds = @stopwatch.total_at_last_pause + ((@now - @stopwatch.datetime_at_last_resume) * @mills_in_sec).floor
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
+			milliseconds = @stopwatch.total_at_last_pause + since(@stopwatch.datetime_at_last_resume)
+			lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
 			
 			@stopwatch.update_attributes(
 				:total_at_last_pause => milliseconds,
@@ -103,9 +79,12 @@ class StopwatchController < ApplicationController
 		respond_with_json
 	end
 	
-	def lapss # Temporarily renamed due to symbol name conflicts with commented-out code in #index
+	def lap
+		respond_with_json
+		return
+		
 		ActiveRecord::Base.transaction do
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + ((@now - @stopwatch.lap_datetime_at_last_resume) * @mills_in_sec).floor
+			lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
 			Lap.create( :total => lap_milliseconds )
 			@stopwatch.update_attributes(
 				:lap_total_at_last_pause => 0,
@@ -113,7 +92,38 @@ class StopwatchController < ApplicationController
 			)
 		end
 		
+		respond_with_json
+	end
+	
+	# TODO Remove; not used
+	def get_time
+		ActiveRecord::Base.transaction do
+			if @stopwatch.is_paused
+				return @stopwatch.total_at_last_pause
+			else
+				return @stopwatch.total_at_last_pause + since(@stopwatch.datetime_at_last_resume)
+			end
+		end
+		
 		redirect_to stopwatch_path
+	end
+	
+	# TODO Remove; not used
+	def get_lap_time
+		ActiveRecord::Base.transaction do
+			if @stopwatch.is_paused
+				return @stopwatch.lap_total_at_last_pause
+			else
+				return @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
+			end
+		end
+		
+		redirect_to stopwatch_path
+	end
+	
+	# Similar to Time#since, but returns milliseconds and uses @now
+	def since (datetime)
+		((@now - datetime) * @mills_in_sec).floor
 	end
 	
 	def init_state_change
