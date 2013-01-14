@@ -43,15 +43,18 @@ createNewStopwatch = ($stopwatches, state) ->
 		'<button class="lap-button"' +
 		(if state.is_paused then ' disabled="disabled"' else '') + '>Lap</button>' +
 		'<div class="laps">' +
-			'<ol>' +
-				(for lap, i in (state.laps.slice(0).reverse()) # Loop backupwards, per: http://stackoverflow.com/a/7920999
-					'<li class="lap lap-' + (state.laps.length - i - 1) + '">Lap ' + (state.laps.length - i - 1) + ': ' + constituents(lap.total) + '</li>'
-				).join('') +
-			'</ol>' +
+			lapsHtml(state) +
 		'</div>'
 	)
 	$stopwatch.data 'state', state
 	attachEventHandlers $stopwatch
+
+lapsHtml = (state) ->
+	'<ol>' +
+		(for lap, i in (state.laps.slice(0).reverse()) # Loop backupwards, per: http://stackoverflow.com/a/7920999
+			'<li class="lap lap-' + (state.laps.length - i) + '">Lap ' + (state.laps.length - i) + ': ' + constituents(lap.total)
+		).join('') +
+	'</ol>'
 
 attachEventHandlers = ($stopwatch) ->
 	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
@@ -89,6 +92,7 @@ attachEventHandlers = ($stopwatch) ->
 		$.post('stopwatch/lap/' + stopwatchId, (state) =>
 			$stopwatch.data('state', state)
 			$stopwatch.data 'lapTime', 0
+			syncOne $stopwatch, state
 		, 'json')
 	)
 
@@ -117,7 +121,7 @@ sync = ->
 		syncAll states
 		
 		$('.stopwatch').each( (i, stopwatch) ->
-			syncOne states, i, $(stopwatch)
+			syncOne $(stopwatch), states[i]
 		)
 	, 'json')
 
@@ -132,19 +136,21 @@ syncAll = (states) ->
 	createNewStopwatch($('.stopwatches'), state) for state in statesToAdd
 	$('.stopwatch-' + id).remove() for id in removedIds
 
-syncOne = (states, i, $stopwatch) ->
-	$stopwatch.data('state', states[i])
+syncOne = ($stopwatch, state) ->
+	$stopwatch.data('state', state)
 	
 	# TODO Refactor to put the "new Date()" and dateDiff calls on the server
 	now = new Date()
-	time = states[i].total_at_last_pause
-	lapTime = states[i].lap_total_at_last_pause
-	unless states[i].is_paused
-		time += dateDiff(now, new Date(states[i].datetime_at_last_resume))
-		lapTime += dateDiff(now, new Date(states[i].lap_datetime_at_last_resume))
+	time = state.total_at_last_pause
+	lapTime = state.lap_total_at_last_pause
+	unless state.is_paused
+		time += dateDiff(now, new Date(state.datetime_at_last_resume))
+		lapTime += dateDiff(now, new Date(state.lap_datetime_at_last_resume))
 	
 	$stopwatch.data 'time', time
 	$stopwatch.data 'lapTime', lapTime
+	
+	$stopwatch.children('.laps').html(lapsHtml(state))
 
 # Modified from: http://stackoverflow.com/a/8585449/770170
 # diff([1,2,3],[2,3,4]) results in {added:4,removed:1}

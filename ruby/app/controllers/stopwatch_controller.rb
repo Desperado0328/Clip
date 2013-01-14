@@ -13,7 +13,7 @@ class StopwatchController < ApplicationController
 		
 		respond_to do |format|
 			format.html # index.html.erb
-			format.json { render json: @stopwatches.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
+			format.json { render :json => @stopwatches.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
 		end
 	end
 	
@@ -137,10 +137,7 @@ class StopwatchController < ApplicationController
 	
 	def respond_with_json
 		respond_to do |format|
-			format.json { render json: @stopwatch }
-			# Modified from: http://stackoverflow.com/a/4582989/770170
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			format.json { render :json => @stopwatch.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
 		end
 	end
 end
