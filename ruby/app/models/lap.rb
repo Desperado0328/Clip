@@ -1,8 +1,7 @@
 class Lap < ActiveRecord::Base
   belongs_to :stopwatch
   
-  validates :time, :numericality => true
-  validates :stopwatch_id, :presence => true
+  validates :total, :numericality => true
   
-  attr_accessible :time #, stopwatch_id ???
+  attr_accessible :total
 end

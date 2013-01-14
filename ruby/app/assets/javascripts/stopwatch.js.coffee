@@ -92,7 +92,6 @@ attachEventHandlers = ($stopwatch) ->
 	$stopwatch.children('.lap-button').click( ->
 		stopwatchId = $stopwatch.data('state').id
 		$.post('stopwatch/lap/' + stopwatchId, (state) =>
-			console.log 'stopwatch/lap/' + stopwatchId
 			$stopwatch.data('state', state)
 		, 'json')
 	)

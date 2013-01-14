@@ -80,16 +80,15 @@ class StopwatchController < ApplicationController
 	end
 	
 	def lap
-		respond_with_json
-		return
-		
 		ActiveRecord::Base.transaction do
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
-			Lap.create( :total => lap_milliseconds )
-			@stopwatch.update_attributes(
-				:lap_total_at_last_pause => 0,
-				:lap_datetime_at_last_resume => @now
-			)
+			unless @stopwatch.is_paused
+				lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
+				@stopwatch.laps.create( :total => lap_milliseconds )
+				@stopwatch.update_attributes(
+					:lap_total_at_last_pause => 0,
+					:lap_datetime_at_last_resume => @now
+				)
+			end
 		end
 		
 		respond_with_json
