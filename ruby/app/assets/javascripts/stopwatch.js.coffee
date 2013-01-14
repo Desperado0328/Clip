@@ -72,8 +72,6 @@ attachEventHandlers = ($stopwatch) ->
 				$stopwatch.data('state', state)
 				$stopwatch.data 'time', state.total_at_last_pause
 				$stopwatch.data 'lapTime', state.lap_total_at_last_pause
-				$stopwatch.children('.time').text(constituents(state.total_at_last_pause))
-				$stopwatch.children('.lap-time').text(constituents(state.lap_total_at_last_pause))
 				$(this).text('Stop')
 				$stopwatch.children('.lap-button').removeAttr('disabled')
 			, 'json')
