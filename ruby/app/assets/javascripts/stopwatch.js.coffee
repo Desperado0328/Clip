@@ -44,12 +44,9 @@ createNewStopwatch = ($stopwatches, state) ->
 		(if state.is_paused then ' disabled="disabled"' else '') + '>Lap</button>' +
 		'<div class="laps">' +
 			'<ol>' +
-				'<li class="lap">Lap 3: 01:23' +
-				'<li class="lap">Lap 2: 01:23' +
-				'<li class="lap">Lap 1: 01:23' +
-				# '<% state.laps.each do |lap| %>' +
-				# '<li class="lap">Lap 4: 99:99' +
-				# '<% end %>' +
+				(for lap, i in (state.laps.slice(0).reverse()) # Loop backupwards, per: http://stackoverflow.com/a/7920999
+					'<li class="lap lap-' + (state.laps.length - i - 1) + '">Lap ' + (state.laps.length - i - 1) + ': ' + constituents(lap.total) + '</li>'
+				).join('') +
 			'</ol>' +
 		'</div>'
 	)

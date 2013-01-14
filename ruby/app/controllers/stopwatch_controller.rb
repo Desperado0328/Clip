@@ -10,14 +10,10 @@ class StopwatchController < ApplicationController
 	
 	def index
 		@stopwatches = Stopwatch.all
-		# @laps = Lap.all # Goes with commented-out code below
 		
 		respond_to do |format|
 			format.html # index.html.erb
-			format.json { render json: @stopwatches }
-			# Modified from: http://stackoverflow.com/a/4582989/770170
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
-			# format.json { render json: @laps.to_json( include: :stopwatch ) } # TODO When there are laps, see if this will put them in the stopwatch JSON
+			format.json { render json: @stopwatches.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
 		end
 	end
 	

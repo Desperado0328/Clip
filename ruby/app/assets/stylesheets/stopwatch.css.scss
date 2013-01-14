@@ -7,9 +7,10 @@
 .stopwatch {
 	margin: 1em 1em 0 0;
 	padding: 1em;
+	display: inline-block;
+	float: left;
 	background-color: lighten($primary, 10%);
 	color: $off-white;
-	display: inline-block;
 }
 
 .clock {
