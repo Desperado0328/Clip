@@ -11,6 +11,7 @@ $('.close-button').click(->
 # Modified from: http://stackoverflow.com/a/8267509/770170
 $.ajaxSetup(
 	type: 'POST'
+	cache: false # Per: http://stackoverflow.com/a/11374774/770170
 	headers:
 		# TODO Get this working; right now it's undefined for some reason (remove the quotes around form_authenticity_token.to_s first)
 		# 'X-CSRF-Token': '<%= 'form_authenticity_token.to_s' %>'
