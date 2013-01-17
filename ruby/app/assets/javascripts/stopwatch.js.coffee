@@ -121,19 +121,11 @@ syncAll = (states) ->
 syncOne = ($stopwatch, state) ->
 	$stopwatch.data('state', state)
 	
-	# TODO refactor to put the "new Date()" and dateDiff calls on the server
-	now = new Date()
-	time = state.total_at_last_pause
-	lapTime = state.lap_total_at_last_pause
-	unless state.is_paused
-		time += now - new Date(state.datetime_at_last_unpause)
-		lapTime += now - new Date(state.lap_datetime_at_last_unpause)
+	$stopwatch.data 'time', state.timey
+	$stopwatch.data 'lapTime', state.lap_timey
 	
-	$stopwatch.data 'time', time
-	$stopwatch.data 'lapTime', lapTime
-	
-	$stopwatch.children('.time').text(constituents(time))
-	$stopwatch.children('.lap-time').text(constituents(lapTime))
+	$stopwatch.children('.time').text(constituents(state.timey))
+	$stopwatch.children('.lap-time').text(constituents(state.lap_timey))
 	$stopwatch.children('.laps').html(lapsHtml(state))
 
 # modified from: http://stackoverflow.com/a/8585449/770170

@@ -1,11 +1,12 @@
 class StopwatchController < ApplicationController	
 	# iPhone stopwatch operation (ignoring article's advice):
 	# http://www.leancrew.com/all-this/2009/07/iphone-stopwatch-ui-oddity/
-
+	
 	# Database transaction code modified from:
 	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
-
-	before_filter :get_stopwatch, :only => [:destroy, :pause, :unpause, :lap, :reset]
+	
+	before_filter :get_time
+	before_filter :find_stopwatch, :only => [:destroy, :pause, :unpause, :lap, :reset]
 	after_filter :flash_to_headers
 	
 	def index
@@ -13,7 +14,7 @@ class StopwatchController < ApplicationController
 		
 		respond_to do |format|
 			format.html # index.html.erb
-			format.json { render :json => @stopwatches.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
+			format.json { render :json => @stopwatches.map { |stopwatch| with_times stopwatch }.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
 		end
 	end
 	
@@ -98,14 +99,17 @@ class StopwatchController < ApplicationController
 		respond_with_json
 	end
 	
-	def get_stopwatch
-		@stopwatch = Stopwatch.find(params[:id])
+	def get_time
 		@now = Time.now # Please don't inline this, to ensure consistent values
 		@mills_in_sec = 1000
 	end
 	
+	def find_stopwatch
+		@stopwatch = Stopwatch.find(params[:id])
+	end
+	
 	# Similar to Time#since, but returns milliseconds and uses @now (defined in
-	# StopwatchController#get_stopwatch)
+	# StopwatchController#find_stopwatch)
 	def since (datetime)
 		((@now - datetime) * @mills_in_sec).floor
 	end
@@ -115,12 +119,24 @@ class StopwatchController < ApplicationController
 		return unless request.xhr?
 		response.headers['X-Flash-Notice'] = flash[:notice] unless flash[:notice].blank?
 		response.headers['X-Flash-Error'] = flash[:error] unless flash[:error].blank?
-		# flash.discard # The flash shouldn't appear when the page is reloaded # HACK? Commented out because it was resetting the response headers somehow
+		# flash.discard # The flash shouldn't appear when the page is reloaded # Commented out because it was resetting the response headers somehow (a hack?)
+	end
+	
+	def with_times(stopwatch)
+		retval = stopwatch.clone # Shallow copy
+		# Modified from: http://stackoverflow.com/a/3147036/770170
+		retval['timey'] = retval.total_at_last_pause
+		retval['lap_timey'] = retval.lap_total_at_last_pause
+		unless retval.is_paused
+			retval['timey'] += since retval.datetime_at_last_unpause
+			retval['lap_timey'] += since retval.lap_datetime_at_last_unpause
+		end
+		retval
 	end
 	
 	def respond_with_json
 		respond_to do |format|
-			format.json { render :json => @stopwatch.to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
+			format.json { render :json => with_times(@stopwatch).to_json( :include => :laps ) } # Modified from: http://stackoverflow.com/a/4582989/770170
 		end
 	end
 end
