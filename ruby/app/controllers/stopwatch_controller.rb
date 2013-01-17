@@ -26,7 +26,7 @@ class StopwatchController < ApplicationController
 			:lap_datetime_at_last_unpause => nil
 		)
 		
-		redirect_to stopwatch_path
+		respond_with_json
 	end
 	
 	def destroy

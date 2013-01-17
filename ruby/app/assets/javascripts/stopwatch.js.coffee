@@ -2,30 +2,19 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-TIME_STEP = 10 # milliseconds # TODO Global
-TIME_STEPS_PER_SYNC = 1000
-
 $ -> init()
 
 init = ->
-	$('.create-stopwatch-button').click(->
-		$.post '/stopwatch/create'
-		repopulateStopwatches() # TODO Only populate the created stopwatch (in a DRY manner) (for performance and so it can be highlighted for a few seconds)
-	)
+	TIME_STEP = 10 # milliseconds
+	TIME_STEPS_PER_SYNC = 1000
+	startSystemClock TIME_STEP, TIME_STEPS_PER_SYNC
+	sync()
 	
-	repopulateStopwatches() # Ajax! Any code after this line had better not depend on it
-
-repopulateStopwatches = ->
-	$.getJSON('/stopwatch', (states) ->
-		$stopwatches = $('.stopwatches')
-		$stopwatches.empty()
-		for state in states
-			createNewStopwatch $stopwatches, state
-		sync()
-		startSystemClock()
+	$('.create-stopwatch-button').click(->
+		$.post('/stopwatch/create', (state) =>
+			createNewStopwatch $('.stopwatches'), state
+		, 'json')
 	)
-	# WARNING: Any code placed out here will probably be called *before* the Ajax call has
-	# completed and cannot depend on it being completed.
 
 createNewStopwatch = ($stopwatches, state) ->
 	# Design decision per: http://stackoverflow.com/q/890004/770170
@@ -110,7 +99,7 @@ pad = (unpadded, length, padWith='0') ->
 	retval
 
 sync = ->
-	$.post('stopwatch', (states) ->
+	$.getJSON('/stopwatch', (states) ->
 		syncAll states
 	, 'json')
 
@@ -160,23 +149,23 @@ diff = (oldArray, newArray) ->
 dateDiff = (present, past) ->
 	Math.floor(present - past)
 
-startSystemClock = ->
-	counterClock = window.setInterval( ->
-		$('.stopwatch').each( ->
-			$this = $(this)
+tick = (timeStep) ->
+	$('.stopwatch').each( ->
+		$this = $(this)
+		
+		unless $this.data('state').is_paused			
+			newTime = $this.data('time') + timeStep
+			newLapTime = $this.data('lapTime') + timeStep
 			
-			unless $this.data('state').is_paused			
-				newTime = $this.data('time') + TIME_STEP
-				newLapTime = $this.data('lapTime') + TIME_STEP
-				
-				$this.data('time', newTime)
-				$this.data('lapTime', newLapTime)
-				
-				$this.children('.time').text(constituents(newTime))
-				$this.children('.lap-time').text(constituents(newLapTime))
-		)
-	, TIME_STEP)
-	
-	syncClock = window.setInterval( ->
-		sync()
-	, TIME_STEP * TIME_STEPS_PER_SYNC)
+			$this.data('time', newTime)
+			$this.data('lapTime', newLapTime)
+			
+			$this.children('.time').text(constituents(newTime))
+			$this.children('.lap-time').text(constituents(newLapTime))
+	)
+
+startSystemClock = (timeStep, timeStepsPerSync) ->
+	counterClock = window.setInterval( ->
+		tick timeStep
+	, timeStep)
+	syncClock = window.setInterval(sync, timeStep * timeStepsPerSync)
