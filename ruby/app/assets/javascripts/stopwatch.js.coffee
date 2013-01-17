@@ -120,12 +120,11 @@ syncAll = (states) ->
 
 syncOne = ($stopwatch, state) ->
 	$stopwatch.data('state', state)
+	$stopwatch.data 'time', state.time
+	$stopwatch.data 'lapTime', state.lap_time
 	
-	$stopwatch.data 'time', state.timey
-	$stopwatch.data 'lapTime', state.lap_timey
-	
-	$stopwatch.children('.time').text(constituents(state.timey))
-	$stopwatch.children('.lap-time').text(constituents(state.lap_timey))
+	$stopwatch.children('.time').text(constituents(state.time))
+	$stopwatch.children('.lap-time').text(constituents(state.lap_time))
 	$stopwatch.children('.laps').html(lapsHtml(state))
 
 # modified from: http://stackoverflow.com/a/8585449/770170

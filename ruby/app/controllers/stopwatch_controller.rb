@@ -125,11 +125,11 @@ class StopwatchController < ApplicationController
 	def with_times(stopwatch)
 		retval = stopwatch.clone # Shallow copy
 		# Modified from: http://stackoverflow.com/a/3147036/770170
-		retval['timey'] = retval.total_at_last_pause
-		retval['lap_timey'] = retval.lap_total_at_last_pause
+		retval['time'] = retval.total_at_last_pause
+		retval['lap_time'] = retval.lap_total_at_last_pause
 		unless retval.is_paused
-			retval['timey'] += since retval.datetime_at_last_unpause
-			retval['lap_timey'] += since retval.lap_datetime_at_last_unpause
+			retval['time'] += since retval.datetime_at_last_unpause
+			retval['lap_time'] += since retval.lap_datetime_at_last_unpause
 		end
 		retval
 	end
