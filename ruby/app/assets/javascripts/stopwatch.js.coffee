@@ -3,6 +3,7 @@
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
 TIME_STEP = 10 # milliseconds # TODO Global
+TIME_STEPS_PER_SYNC = 1000
 
 $ -> init()
 
@@ -183,4 +184,4 @@ startSystemClock = ->
 	
 	syncClock = window.setInterval( ->
 		sync()
-	, TIME_STEP * 1000)
+	, TIME_STEP * TIME_STEPS_PER_SYNC)
