@@ -5,7 +5,7 @@ class StopwatchController < ApplicationController
 	# Database transaction code modified from:
 	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
 
-	before_filter :get_stopwatch, :only => [:destroy, :pause, :unpause, :lap]
+	before_filter :get_stopwatch, :only => [:destroy, :pause, :unpause, :lap, :reset]
 	after_filter :flash_to_headers
 	
 	def index
@@ -18,28 +18,19 @@ class StopwatchController < ApplicationController
 	end
 	
 	def create
-		@stopwatch = Stopwatch.new(
+		@stopwatch = Stopwatch.create(
 			:is_paused => true,
 			:total_at_last_pause => 0,
 			:lap_total_at_last_pause => 0,
 			:datetime_at_last_unpause => nil,
 			:lap_datetime_at_last_unpause => nil
 		)
-		if @stopwatch.save
-			# flash[:notice] = 'Stopwatch was successfully created.'
-		else
-			# flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
-		end
 		
 		redirect_to stopwatch_path
 	end
 	
 	def destroy
-		if @stopwatch.destroy
-			# flash[:notice] = 'Stopwatch was successfully deleted.'
-		else
-			# flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
-		end
+		@stopwatch.destroy
 		
 		redirect_to stopwatch_path
 	end
@@ -86,6 +77,20 @@ class StopwatchController < ApplicationController
 			@stopwatch.laps.create( :total => lap_milliseconds )
 			@stopwatch.update_attributes(
 				:lap_total_at_last_pause => 0,
+				:lap_datetime_at_last_unpause => @now
+			)
+		end
+		
+		respond_with_json
+	end
+	
+	def reset
+		ActiveRecord::Base.transaction do
+			@stopwatch.laps.destroy_all
+			@stopwatch.update_attributes(
+				:total_at_last_pause => 0,
+				:lap_total_at_last_pause => 0,
+				:datetime_at_last_unpause => @now,
 				:lap_datetime_at_last_unpause => @now
 			)
 		end

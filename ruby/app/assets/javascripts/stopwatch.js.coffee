@@ -41,7 +41,8 @@ createNewStopwatch = ($stopwatches, state) ->
 		'<br />' +
 		'<button class="pause-button">' +
 		(if state.is_paused then 'Start' else 'Stop') + '</button>' +
-		'<button class="lap-button">Lap</button>' +
+		'<button class="lap-button">' +
+		(if state.is_paused then 'Reset' else 'Lap') + '</button>' +
 		'<div class="laps">' +
 			lapsHtml(state) +
 		'</div>'
@@ -66,30 +67,24 @@ attachEventHandlers = ($stopwatch) ->
 	
 	$stopwatch.children('.pause-button').click( ->
 		stopwatchId = $stopwatch.data('state').id
-		# TODO duplicate code
 		if $stopwatch.data('state').is_paused
 			$.post('/stopwatch/unpause/' + stopwatchId, (state) =>
-				$stopwatch.data('state', state)
-				$stopwatch.data 'time', state.total_at_last_pause
-				$stopwatch.data 'lapTime', state.lap_total_at_last_pause
+				syncOne $stopwatch, state
 				$(this).text('Stop')
+				$(this).parent().children('.lap-button').text('Lap') # TODO Ew.
 			, 'json')
 		else
 			$.post('/stopwatch/pause/' + stopwatchId, (state) =>
-				$stopwatch.data('state', state)
-				$stopwatch.data 'time', state.total_at_last_pause
-				$stopwatch.data 'lapTime', state.lap_total_at_last_pause
-				$stopwatch.children('.time').text(constituents(state.total_at_last_pause))
-				$stopwatch.children('.lap-time').text(constituents(state.lap_total_at_last_pause))
+				syncOne $stopwatch, state
 				$(this).text('Start')
+				$(this).parent().children('.lap-button').text('Reset') # TODO Ew.
 			, 'json')
 	)
 	
 	$stopwatch.children('.lap-button').click( ->
 		stopwatchId = $stopwatch.data('state').id
-		$.post('/stopwatch/lap/' + stopwatchId, (state) =>
-			$stopwatch.data('state', state)
-			$stopwatch.data 'lapTime', 0
+		postUrl = '/stopwatch/' + (if $stopwatch.data('state').is_paused then 'reset/' else 'lap/') + stopwatchId
+		$.post(postUrl, (state) ->
 			syncOne $stopwatch, state
 		, 'json')
 	)
