@@ -15,7 +15,6 @@ init = ->
 	repopulateStopwatches() # Ajax! Any code after this line had better not depend on it
 
 repopulateStopwatches = ->
-	# Design decision per: http://stackoverflow.com/q/890004/770170
 	$.getJSON('/stopwatch', (states) ->
 		$stopwatches = $('.stopwatches')
 		$stopwatches.empty()
@@ -28,6 +27,7 @@ repopulateStopwatches = ->
 	# completed and cannot depend on it being completed.
 
 createNewStopwatch = ($stopwatches, state) ->
+	# Design decision per: http://stackoverflow.com/q/890004/770170
 	$stopwatches.append(
 		'<div class="stopwatch stopwatch-' + state.id + '"></div>'
 	)
@@ -40,8 +40,7 @@ createNewStopwatch = ($stopwatches, state) ->
 		'<br />' +
 		'<button class="pause-button">' +
 		(if state.is_paused then 'Start' else 'Stop') + '</button>' +
-		'<button class="lap-button"' +
-		(if state.is_paused then ' disabled="disabled"' else '') + '>Lap</button>' +
+		'<button class="lap-button">Lap</button>' +
 		'<div class="laps">' +
 			lapsHtml(state) +
 		'</div>'
@@ -68,28 +67,26 @@ attachEventHandlers = ($stopwatch) ->
 		stopwatchId = $stopwatch.data('state').id
 		# TODO duplicate code
 		if $stopwatch.data('state').is_paused
-			$.post('stopwatch/unpause/' + stopwatchId, (state) =>
+			$.post('/stopwatch/unpause/' + stopwatchId, (state) =>
 				$stopwatch.data('state', state)
 				$stopwatch.data 'time', state.total_at_last_pause
 				$stopwatch.data 'lapTime', state.lap_total_at_last_pause
 				$(this).text('Stop')
-				$stopwatch.children('.lap-button').removeAttr('disabled')
 			, 'json')
 		else
-			$.post('stopwatch/pause/' + stopwatchId, (state) =>
+			$.post('/stopwatch/pause/' + stopwatchId, (state) =>
 				$stopwatch.data('state', state)
 				$stopwatch.data 'time', state.total_at_last_pause
 				$stopwatch.data 'lapTime', state.lap_total_at_last_pause
 				$stopwatch.children('.time').text(constituents(state.total_at_last_pause))
 				$stopwatch.children('.lap-time').text(constituents(state.lap_total_at_last_pause))
 				$(this).text('Start')
-				$stopwatch.children('.lap-button').attr('disabled', 'disabled')
 			, 'json')
 	)
 	
 	$stopwatch.children('.lap-button').click( ->
 		stopwatchId = $stopwatch.data('state').id
-		$.post('stopwatch/lap/' + stopwatchId, (state) =>
+		$.post('/stopwatch/lap/' + stopwatchId, (state) =>
 			$stopwatch.data('state', state)
 			$stopwatch.data 'lapTime', 0
 			syncOne $stopwatch, state
@@ -119,10 +116,6 @@ pad = (unpadded, length, padWith='0') ->
 sync = ->
 	$.post('stopwatch', (states) ->
 		syncAll states
-		
-		$('.stopwatch').each( (i, stopwatch) ->
-			syncOne $(stopwatch), states[i]
-		)
 	, 'json')
 
 syncAll = (states) ->
@@ -135,6 +128,11 @@ syncAll = (states) ->
 	# Add and/or remove them from the DOM
 	createNewStopwatch($('.stopwatches'), state) for state in statesToAdd
 	$('.stopwatch-' + id).remove() for id in removedIds
+	
+	# Sync whatever stopwatches are left
+	$('.stopwatch').each( (i, stopwatch) ->
+		syncOne $(stopwatch), states[i]
+	)
 
 syncOne = ($stopwatch, state) ->
 	$stopwatch.data('state', state)
@@ -144,12 +142,14 @@ syncOne = ($stopwatch, state) ->
 	time = state.total_at_last_pause
 	lapTime = state.lap_total_at_last_pause
 	unless state.is_paused
-		time += dateDiff(now, new Date(state.datetime_at_last_resume))
-		lapTime += dateDiff(now, new Date(state.lap_datetime_at_last_resume))
+		time += dateDiff(now, new Date(state.datetime_at_last_unpause))
+		lapTime += dateDiff(now, new Date(state.lap_datetime_at_last_unpause))
 	
 	$stopwatch.data 'time', time
 	$stopwatch.data 'lapTime', lapTime
 	
+	$stopwatch.children('.time').html(constituents(time))
+	$stopwatch.children('.lap-time').html(constituents(lapTime))
 	$stopwatch.children('.laps').html(lapsHtml(state))
 
 # Modified from: http://stackoverflow.com/a/8585449/770170

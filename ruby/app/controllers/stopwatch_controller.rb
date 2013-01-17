@@ -5,7 +5,7 @@ class StopwatchController < ApplicationController
 	# Database transaction code modified from:
 	# http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
 
-	before_filter :init_state_change, :only => [:destroy, :pause, :unpause, :lap]
+	before_filter :get_stopwatch, :only => [:destroy, :pause, :unpause, :lap]
 	after_filter :flash_to_headers
 	
 	def index
@@ -22,13 +22,13 @@ class StopwatchController < ApplicationController
 			:is_paused => true,
 			:total_at_last_pause => 0,
 			:lap_total_at_last_pause => 0,
-			:datetime_at_last_resume => nil,
-			:lap_datetime_at_last_resume => nil
+			:datetime_at_last_unpause => nil,
+			:lap_datetime_at_last_unpause => nil
 		)
 		if @stopwatch.save
-			flash[:notice] = 'Stopwatch was successfully created.'
+			# flash[:notice] = 'Stopwatch was successfully created.'
 		else
-			flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
+			# flash[:error] = ['Could not create a new stopwatch because: ', @stopwatch.errors]
 		end
 		
 		redirect_to stopwatch_path
@@ -36,9 +36,9 @@ class StopwatchController < ApplicationController
 	
 	def destroy
 		if @stopwatch.destroy
-			flash[:notice] = 'Stopwatch was successfully deleted.'
+			# flash[:notice] = 'Stopwatch was successfully deleted.'
 		else
-			flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
+			# flash[:error] = ['Could not delete stopwatch because: ', @stopwatch.errors]
 		end
 		
 		redirect_to stopwatch_path
@@ -48,8 +48,8 @@ class StopwatchController < ApplicationController
 		ActiveRecord::Base.transaction do
 			break if @stopwatch.is_paused
 			
-			milliseconds = @stopwatch.total_at_last_pause + since(@stopwatch.datetime_at_last_resume)
-			lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
+			milliseconds = @stopwatch.total_at_last_pause + since(@stopwatch.datetime_at_last_unpause)
+			lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_unpause)
 			
 			@stopwatch.update_attributes(
 				:total_at_last_pause => milliseconds,
@@ -66,8 +66,8 @@ class StopwatchController < ApplicationController
 			break unless @stopwatch.is_paused
 			
 			@stopwatch.update_attributes(
-				:datetime_at_last_resume => @now,
-				:lap_datetime_at_last_resume => @now,
+				:datetime_at_last_unpause => @now,
+				:lap_datetime_at_last_unpause => @now,
 				:is_paused => false
 			)
 		end
@@ -77,54 +77,32 @@ class StopwatchController < ApplicationController
 	
 	def lap
 		ActiveRecord::Base.transaction do
-			unless @stopwatch.is_paused
-				lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
-				@stopwatch.laps.create( :total => lap_milliseconds )
-				@stopwatch.update_attributes(
-					:lap_total_at_last_pause => 0,
-					:lap_datetime_at_last_resume => @now
-				)
+			if @stopwatch.is_paused
+				lap_milliseconds = @stopwatch.lap_total_at_last_pause
+			else
+				lap_milliseconds = @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_unpause)
 			end
+			
+			@stopwatch.laps.create( :total => lap_milliseconds )
+			@stopwatch.update_attributes(
+				:lap_total_at_last_pause => 0,
+				:lap_datetime_at_last_unpause => @now
+			)
 		end
 		
 		respond_with_json
 	end
 	
-	# TODO Remove; not used
-	def get_time
-		ActiveRecord::Base.transaction do
-			if @stopwatch.is_paused
-				return @stopwatch.total_at_last_pause
-			else
-				return @stopwatch.total_at_last_pause + since(@stopwatch.datetime_at_last_resume)
-			end
-		end
-		
-		redirect_to stopwatch_path
-	end
-	
-	# TODO Remove; not used
-	def get_lap_time
-		ActiveRecord::Base.transaction do
-			if @stopwatch.is_paused
-				return @stopwatch.lap_total_at_last_pause
-			else
-				return @stopwatch.lap_total_at_last_pause + since(@stopwatch.lap_datetime_at_last_resume)
-			end
-		end
-		
-		redirect_to stopwatch_path
-	end
-	
-	# Similar to Time#since, but returns milliseconds and uses @now
-	def since (datetime)
-		((@now - datetime) * @mills_in_sec).floor
-	end
-	
-	def init_state_change
+	def get_stopwatch
 		@stopwatch = Stopwatch.find(params[:id])
 		@now = Time.now # Please don't inline this, to ensure consistent values
 		@mills_in_sec = 1000
+	end
+	
+	# Similar to Time#since, but returns milliseconds and uses @now (defined in
+	# StopwatchController#get_stopwatch)
+	def since (datetime)
+		((@now - datetime) * @mills_in_sec).floor
 	end
 	
 	# Modified from: http://stackoverflow.com/a/2729454/770170
