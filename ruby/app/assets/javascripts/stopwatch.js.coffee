@@ -17,37 +17,36 @@ init = ->
 	)
 
 createNewStopwatch = ($stopwatches, state) ->
-	# Design decision per: http://stackoverflow.com/q/890004/770170
-	$stopwatches.append(
-		'<div class="stopwatch stopwatch-' + state.id + '"></div>'
+	# HTML design decision per: http://stackoverflow.com/q/890004/770170
+	attachEventHandlers(
+		$('<div class="stopwatch stopwatch-' + state.id + '"></div>')
+			.append(
+				'Lap: <span class="lap-time lap-time-' + state.id + ' clock">' + constituents(state.lap_total_at_last_pause) + '</span>' +
+				'<button class="destroy-stopwatch-button">X</button>' +
+				'<br />' +
+				'<span class="time time-' + state.id + ' clock">' + constituents(state.total_at_last_pause) + '</span>' +
+				'<br />' +
+				'<button class="pause-button">' +
+				(if state.is_paused then 'Start' else 'Stop') + '</button>' +
+				'<button class="lap-button lap-button-' + state.id + '">' +
+				(if state.is_paused then 'Reset' else 'Lap') + '</button>' +
+				'<div class="laps">' +
+					lapsHtml(state) +
+				'</div>'
+			)
+			.data('state', state)
+			.appendTo($stopwatches)
 	)
-	$stopwatch = $('.stopwatch-' + state.id) # The object that was just appended
-	$stopwatch.append(
-		'Lap: <span class="lap-time lap-time-' + state.id + ' clock">' + constituents(state.lap_total_at_last_pause) + '</span>' +
-		'<button class="destroy-stopwatch-button">X</button>' +
-		'<br />' +
-		'<span class="time time-' + state.id + ' clock">' + constituents(state.total_at_last_pause) + '</span>' +
-		'<br />' +
-		'<button class="pause-button">' +
-		(if state.is_paused then 'Start' else 'Stop') + '</button>' +
-		'<button class="lap-button lap-button-' + state.id + '">' +
-		(if state.is_paused then 'Reset' else 'Lap') + '</button>' +
-		'<div class="laps">' +
-			lapsHtml(state) +
-		'</div>'
-	)
-	$stopwatch.data 'state', state
-	attachEventHandlers $stopwatch
 
 lapsHtml = (state) ->
 	'<ol>' +
-		(for lap, i in (state.laps.slice(0).reverse()) # Loop backupwards, per: http://stackoverflow.com/a/7920999
+		(for lap, i in (state.laps.slice(0).reverse()) # loop backupwards, per: http://stackoverflow.com/a/7920999
 			'<li class="lap lap-' + (state.laps.length - i) + '">Lap ' + (state.laps.length - i) + ': ' + constituents(lap.total)
 		).join('') +
 	'</ol>'
 
 attachEventHandlers = ($stopwatch) ->
-	# While HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST.
+	# while HTTP supports GET, POST, PUT, and DELETE, HTML only supports GET and POST
 	$stopwatch.children('.destroy-stopwatch-button').click( ->
 		$.post('/stopwatch/destroy/' + $stopwatch.data('state').id, ->
 			$stopwatch.remove()
@@ -79,14 +78,14 @@ attachEventHandlers = ($stopwatch) ->
 	)
 
 constituents = (milliseconds_overflowing) ->
-	milliseconds_overflowing = Number milliseconds_overflowing
+	milliseconds_overflowing = Math.floor(milliseconds_overflowing)
 	milliseconds = milliseconds_overflowing % 1000
 	seconds_overflowing = Math.floor(milliseconds_overflowing / 1000)
 	seconds = seconds_overflowing % 60
 	minutes_overflowing = Math.floor(seconds_overflowing / 60)
 	minutes = minutes_overflowing % 60
 	hours_overflowing = Math.floor(minutes_overflowing / 60)
-	hours = hours_overflowing # Let the hours overflow because there are no higher units.
+	hours = hours_overflowing # let the hours overflow because there are no higher units
 	
 	milliseconds = Math.floor(milliseconds / 10) # only display two decimal points
 	
@@ -104,17 +103,17 @@ sync = ->
 	, 'json')
 
 syncAll = (states) ->
-	# Determine which (if any) stopwatches need to be added and/or removed
+	# determine which (if any) stopwatches need to be added and/or removed
 	oldStopwatchIds = ($(stopwatch).data('state').id for stopwatch in $('.stopwatch'))
 	newStopwatchIds = (state.id for state in states)
 	{ added: addedIds, removed: removedIds } = diff oldStopwatchIds, newStopwatchIds
 	statesToAdd = (state for state in states when state.id in addedIds)
 	
-	# Add and/or remove them from the DOM
+	# add and/or remove them from the DOM
 	createNewStopwatch($('.stopwatches'), state) for state in statesToAdd
 	$('.stopwatch-' + id).remove() for id in removedIds
 	
-	# Sync whatever stopwatches are left
+	# sync whatever stopwatches are left
 	$('.stopwatch').each( (i, stopwatch) ->
 		syncOne $(stopwatch), states[i]
 	)
@@ -122,32 +121,29 @@ syncAll = (states) ->
 syncOne = ($stopwatch, state) ->
 	$stopwatch.data('state', state)
 	
-	# TODO Refactor to put the "new Date()" and dateDiff calls on the server
+	# TODO refactor to put the "new Date()" and dateDiff calls on the server
 	now = new Date()
 	time = state.total_at_last_pause
 	lapTime = state.lap_total_at_last_pause
 	unless state.is_paused
-		time += dateDiff(now, new Date(state.datetime_at_last_unpause))
-		lapTime += dateDiff(now, new Date(state.lap_datetime_at_last_unpause))
+		time += now - new Date(state.datetime_at_last_unpause)
+		lapTime += now - new Date(state.lap_datetime_at_last_unpause)
 	
 	$stopwatch.data 'time', time
 	$stopwatch.data 'lapTime', lapTime
 	
-	$stopwatch.children('.time').html(constituents(time))
-	$stopwatch.children('.lap-time').html(constituents(lapTime))
+	$stopwatch.children('.time').text(constituents(time))
+	$stopwatch.children('.lap-time').text(constituents(lapTime))
 	$stopwatch.children('.laps').html(lapsHtml(state))
 
-# Modified from: http://stackoverflow.com/a/8585449/770170
-# diff([1,2,3],[2,3,4]) results in {added:4,removed:1}
+# modified from: http://stackoverflow.com/a/8585449/770170
+# diff( [1, 2, 3], [2, 3, 4] ) results in { added: 4, removed: 1 }
 diff = (oldArray, newArray) ->
 	# return
 	added:
 		newItem for newItem in newArray when newItem not in oldArray
 	removed:
 		oldItem for oldItem in oldArray when oldItem not in newArray
-
-dateDiff = (present, past) ->
-	Math.floor(present - past)
 
 tick = (timeStep) ->
 	$('.stopwatch').each( ->
@@ -165,7 +161,5 @@ tick = (timeStep) ->
 	)
 
 startSystemClock = (timeStep, timeStepsPerSync) ->
-	counterClock = window.setInterval( ->
-		tick timeStep
-	, timeStep)
+	counterClock = window.setInterval( (-> tick(timeStep)), timeStep)
 	syncClock = window.setInterval(sync, timeStep * timeStepsPerSync)
