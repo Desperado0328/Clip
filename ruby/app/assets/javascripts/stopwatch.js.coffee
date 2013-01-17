@@ -30,7 +30,7 @@ createNewStopwatch = ($stopwatches, state) ->
 		'<br />' +
 		'<button class="pause-button">' +
 		(if state.is_paused then 'Start' else 'Stop') + '</button>' +
-		'<button class="lap-button">' +
+		'<button class="lap-button lap-button-' + state.id + '">' +
 		(if state.is_paused then 'Reset' else 'Lap') + '</button>' +
 		'<div class="laps">' +
 			lapsHtml(state) +
@@ -60,13 +60,13 @@ attachEventHandlers = ($stopwatch) ->
 			$.post('/stopwatch/unpause/' + stopwatchId, (state) =>
 				syncOne $stopwatch, state
 				$(this).text('Stop')
-				$(this).parent().children('.lap-button').text('Lap') # TODO Ew.
+				$('.lap-button-' + stopwatchId).text('Lap')
 			, 'json')
 		else
 			$.post('/stopwatch/pause/' + stopwatchId, (state) =>
 				syncOne $stopwatch, state
 				$(this).text('Start')
-				$(this).parent().children('.lap-button').text('Reset') # TODO Ew.
+				$('.lap-button-' + stopwatchId).text('Reset')
 			, 'json')
 	)
 	
