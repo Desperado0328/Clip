@@ -12,3 +12,56 @@ $off-white: #eee;
 $off-off-white: #ddd;
 $off-black: #111;
 $off-off-black: #222;
+
+// Button reset, modified from: http://stackoverflow.com/q/3110564/770170
+@mixin button-reset {
+	background: none;
+	border: none;
+	cursor: pointer;
+	margin: 0;
+	padding: 0;
+	background-color: inherit;
+}
+
+// Per: http://css3please.com/
+@mixin border-radius($radius) {
+	-webkit-border-radius: $radius; /* Safari 3-4, iOS 1-3.2, Android =1.6 */
+			border-radius: $radius; /* Opera 10.5, IE9+, Safari 5, Chrome, Firefox 4+, iOS 4, Android 2.1+ */
+	
+	 /* useful if you don't want a bg color from leaking outside the border: */
+	-moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
+}
+
+// Per: http://css3please.com/
+@mixin box-shadow($args) {
+	-webkit-box-shadow: $args; /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+			box-shadow: $args; /* Opera 10.5, IE9+, Firefox 4+, Chrome 6+, iOS 5 */
+}
+
+// Per: http://css3please.com/
+@mixin linear-gradient($top-color, $bottom-color) {
+  background-color: $top-color;
+  background-image: -webkit-gradient(linear, left top, left bottom, from($top-color), to($bottom-color)); /* Safari 4+, Chrome */
+  background-image: -webkit-linear-gradient(top, $top-color $bottom-color); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+  background-image:    -moz-linear-gradient(top, $top-color, $bottom-color); /* Firefox 3.6-15 */
+  background-image:      -o-linear-gradient(top, $top-color, $bottom-color); /* Opera 11.10-12.00 */
+  background-image:         linear-gradient(to bottom, $top-color, $bottom-color); /* Firefox 16+, IE10, Opera 12.50+ */
+}
+
+@mixin fancy-button($color, $font-size:1em) {
+	@include button-reset;
+	padding: 0.5em;
+	font-size: $font-size;
+	background-color: $color;
+	color: $off-white;
+	@include border-radius(0.4em);
+	@include box-shadow(0.1em 0.1em 0.07em 0.07em darken($color, 20%));
+	@include linear-gradient( lighten($color, 10%), darken($color, 10%) );
+	&:active {
+		position: relative;
+		top: 0.1em;
+		left: 0.1em;
+		@include box-shadow(-0.1em -0.1em 0.07em 0.07em darken($color, 10%));
+		@include linear-gradient(darken($color, 10%), lighten($color, 10%));
+	}
+}

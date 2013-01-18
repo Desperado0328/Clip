@@ -6,7 +6,7 @@ $ -> init()
 
 init = ->
 	TIME_STEP = 10 # milliseconds
-	TIME_STEPS_PER_SYNC = 1000
+	TIME_STEPS_PER_SYNC = 500
 	startSystemClock TIME_STEP, TIME_STEPS_PER_SYNC
 	sync()
 	
@@ -26,9 +26,11 @@ createNewStopwatch = ($stopwatches, state) ->
 				'<br />' +
 				'<span class="time time-' + state.id + ' clock">' + constituents(state.total_at_last_pause) + '</span>' +
 				'<br />' +
-				'<button class="pause-button">' +
+				'<button class="pause-button ' +
+				(if state.is_paused then 'unpausing-button' else 'pausing-button') + '">' +
 				(if state.is_paused then 'Start' else 'Stop') + '</button>' +
-				'<button class="lap-button lap-button-' + state.id + '">' +
+				'<button class="lap-button lap-button-' + state.id + ' ' +
+				(if state.is_paused then 'resetting-button' else 'lapping-button') + '">' +
 				(if state.is_paused then 'Reset' else 'Lap') + '</button>' +
 				'<div class="laps">' +
 					lapsHtml(state) +
@@ -58,14 +60,14 @@ attachEventHandlers = ($stopwatch) ->
 		if $stopwatch.data('state').is_paused
 			$.post('/stopwatch/unpause/' + stopwatchId, (state) =>
 				syncOne $stopwatch, state
-				$(this).text('Stop')
-				$('.lap-button-' + stopwatchId).text('Lap')
+				$(this).text('Stop').addClass('pausing-button').removeClass('unpausing-button')
+				$('.lap-button-' + stopwatchId).text('Lap').addClass('lapping-button').removeClass('resetting-button')
 			, 'json')
 		else
 			$.post('/stopwatch/pause/' + stopwatchId, (state) =>
 				syncOne $stopwatch, state
-				$(this).text('Start')
-				$('.lap-button-' + stopwatchId).text('Reset')
+				$(this).text('Start').addClass('unpausing-button').removeClass('pausing-button')
+				$('.lap-button-' + stopwatchId).text('Reset').addClass('resetting-button').removeClass('lapping-button')
 			, 'json')
 	)
 	

@@ -4,6 +4,9 @@
 
 @import "variables.css.scss";
 
+$stopwatch-color: $off-off-white;
+$stopwatch-background-color: $off-black;
+
 .stopwatch {
 	margin: 1em 1em 0 0;
 	padding: 1em;
@@ -11,48 +14,72 @@
 	float: left;
 	background-color: lighten($primary, 10%);
 	color: $off-white;
+	@include border-radius(1em);
+	@include linear-gradient(lighten($stopwatch-background-color, 8%), $stopwatch-background-color);
+	@include box-shadow(0 0 0.2em 0 darken($stopwatch-background-color, 20%));
 }
 
-.clock {
+.time {
 	font-size: 2em;
-	background-color: $off-off-black;
-	color: $off-white;
+	display: inline-block;
+	width: 6em;
+	color: $stopwatch-color;
 }
 
 .lap-time {
+	color: $stopwatch-color;
 	font-size: 1em;
+	display: inline-block;
+	margin-bottom: 0.5em;
 }
 
 .laps {
 	height: 5em;
 	overflow: auto;
-	border: 1px solid black;
+	border: 1px solid $stopwatch-color;
+	@include border-radius(5px);
 }
 
 .lap {
 	padding: 0 0.5em 0 0.5em;
-	color: white;
-	border-bottom: 1px solid white;
+	color: $stopwatch-color;
+	border-bottom: 1px solid $stopwatch-color;
+}
+
+@mixin stopwatch-button($margin) {
+	width: 45%;
+	margin: $margin;
+}
+
+.create-stopwatch-button {
+	@include fancy-button(green, 1.5em);
+}
+
+.pausing-button {
+	@include fancy-button(red);
+	@include stopwatch-button(0.5em 5% 0.5em 0%);
+}
+
+.unpausing-button {
+	@include fancy-button(green);
+	@include stopwatch-button(0.5em 5% 0.5em 0%);
+}
+
+.lapping-button {
+	@include fancy-button(green);
+	@include stopwatch-button(0.5em 0% 0.5em 5%);
+}
+
+.resetting-button {
+	@include fancy-button(red);
+	@include stopwatch-button(0.5em 0% 0.5em 5%);
 }
 
 .destroy-stopwatch-button {
-	// Button reset, modified from: http://stackoverflow.com/q/3110564/770170
-	background: none;
-	border: none;
-	cursor: pointer;
-	margin: 0px;
-	padding: 0px;
-	background-color: inherit;
-	
-	width: 2em;
-	height: 2em;
+	@include fancy-button(red);
+	font-size: 0.7em;
+	width: 3em;
+	height: 1.5em;
 	float: right;
-	position: relative;
-	top: -0.5em;
-	left: -0.5em;
-	
-	background-color: red;
-	color: white;
-	font-weight: bold;
-	border: 1px solid white;
+	padding: 0;
 }
