@@ -1,8 +1,11 @@
 Clip::Application.routes.draw do
+  get "rss/index"
+
 	root :to => 'home#index'
 	match '/pong' => 'pong#index'
 	match '/ownership' => 'owner#index'
 	match '/stopwatch' => 'stopwatch#index'
+	match '/rss' => 'rss#index'
 	post '/stopwatch/create' => 'stopwatch#create'
 	post '/stopwatch/destroy/:id' => 'stopwatch#destroy'
 	post '/stopwatch/pause/:id' => 'stopwatch#pause'
