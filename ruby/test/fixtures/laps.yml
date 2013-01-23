@@ -1,7 +1,5 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  time: 1
-
-two:
-  time: 1
+  total: 0
+  stopwatch_id: 0

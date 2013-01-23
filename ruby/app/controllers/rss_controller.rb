@@ -1,4 +1,5 @@
 class RssController < ApplicationController
-  def index
-  end
+	def index
+		@xml = '<rss>'
+	end
 end
