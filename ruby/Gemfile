@@ -42,6 +42,10 @@ end
 
 gem 'jquery-rails'
 
+# Added by Terry for RSS parsing on April 14, 2013. Version number came from the
+# output of `$ gem install nokogiri`.
+gem 'nokogiri', '~> 1.5.9'
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

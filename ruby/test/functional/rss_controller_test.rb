@@ -7,4 +7,9 @@ class RssControllerTest < ActionController::TestCase
 	assert assigns(:xml).include?('<rss')
   end
 
+  test "should load youtube.com" do
+  	get :index
+  	assert assigns(:youtube).xpath("//html").to_s.include?('YouTube')
+  end
+
 end
